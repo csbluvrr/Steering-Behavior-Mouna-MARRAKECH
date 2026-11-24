@@ -1,19 +1,100 @@
 let onyx;
 let scorbunnies = [];
+let obstacles = [];
 let particles = [];
 let trailParticles = [];
 let comicBooms = [];
 
-// État de la partie ('PLAYING' ou 'GAMEOVER')
+// Configuration des 5 niveaux à difficulté croissante
+const LEVELS = [
+  {
+    num: 1,
+    nom: "🌱 Échauffement",
+    nbScorbunnies: 4,
+    vOnix: 5,
+    vNormS: 3,
+    vEvadeS: 5.5,
+    champVision: 150,
+    obstacles: []
+  },
+  {
+    num: 2,
+    nom: "⚡ Poursuite Rapide",
+    nbScorbunnies: 6,
+    vOnix: 6.5,
+    vNormS: 4,
+    vEvadeS: 7,
+    champVision: 190,
+    obstacles: [
+      { rx: 0.28, ry: 0.32, r: 26 },
+      { rx: 0.72, ry: 0.68, r: 26 }
+    ]
+  },
+  {
+    num: 3,
+    nom: "🪨 Champ d'Astéroïdes",
+    nbScorbunnies: 8,
+    vOnix: 7.5,
+    vNormS: 5,
+    vEvadeS: 8.5,
+    champVision: 220,
+    obstacles: [
+      { rx: 0.26, ry: 0.28, r: 26 },
+      { rx: 0.74, ry: 0.28, r: 26 },
+      { rx: 0.26, ry: 0.72, r: 26 },
+      { rx: 0.74, ry: 0.72, r: 26 }
+    ]
+  },
+  {
+    num: 4,
+    nom: "🔥 Panique Cosmique",
+    nbScorbunnies: 10,
+    vOnix: 8.5,
+    vNormS: 6,
+    vEvadeS: 10,
+    champVision: 260,
+    obstacles: [
+      { rx: 0.24, ry: 0.28, r: 26 },
+      { rx: 0.76, ry: 0.28, r: 26 },
+      { rx: 0.24, ry: 0.72, r: 26 },
+      { rx: 0.76, ry: 0.72, r: 26 },
+      { rx: 0.50, ry: 0.24, r: 24 }
+    ]
+  },
+  {
+    num: 5,
+    nom: "👑 Maître Onix",
+    nbScorbunnies: 12,
+    vOnix: 9.5,
+    vNormS: 6.5,
+    vEvadeS: 11.5,
+    champVision: 300,
+    obstacles: [
+      { rx: 0.24, ry: 0.26, r: 26 },
+      { rx: 0.76, ry: 0.26, r: 26 },
+      { rx: 0.24, ry: 0.74, r: 26 },
+      { rx: 0.76, ry: 0.74, r: 26 },
+      { rx: 0.50, ry: 0.22, r: 24 },
+      { rx: 0.50, ry: 0.78, r: 24 }
+    ]
+  }
+];
+
+let currentLevel = 1;
+let levelButtons = [];
+let labelNiveauActuel;
+
+// État de la partie ('PLAYING', 'GAMEOVER', 'LEVEL_COMPLETE', 'VICTORY_ALL')
 let gameState = 'PLAYING';
 let gameOverTimer = 0;
 let gameOverReason = "";
-let totalScorbunniesDebut = 5;
+let totalScorbunniesDebut = 4;
 
 // Audio et effets
 let gameAudio;
 let screenShake = 0;
 let scoreMiam = 0;
+let scoreTotal = 0;
 
 // Menu burger et interface utilisateur
 let burgerBtn;
@@ -71,7 +152,7 @@ function setup() {
 
   gameAudio = new GameAudio();
   creerInterfaceUtilisateur();
-  reinitialiserJeu();
+  chargerNiveau(1);
 }
 
 function creerInterfaceUtilisateur() {
@@ -96,6 +177,30 @@ function creerInterfaceUtilisateur() {
   let headerMenu = createDiv('<span>🎮 Onix Snake & Scorbunnies</span><span style="font-size:12px;color:#9333ea;">★ Switch Edition</span>');
   headerMenu.parent(uiContainer);
   headerMenu.addClass('switch-menu-header');
+
+  // SECTION 0 : Niveaux à complexité croissante
+  let secLvl = createDiv();
+  secLvl.parent(uiContainer);
+  secLvl.addClass('switch-section switch-section-levels');
+
+  labelNiveauActuel = createDiv('⭐ NIVEAU 1 / 5 — 🌱 Échauffement');
+  labelNiveauActuel.parent(secLvl);
+  labelNiveauActuel.addClass('switch-section-title');
+
+  let rLvl = createDiv();
+  rLvl.parent(secLvl);
+  rLvl.addClass('switch-controls-row');
+  levelButtons = [];
+  for (let lvl of LEVELS) {
+    let btn = createButton('Niv. ' + lvl.num);
+    btn.parent(rLvl);
+    btn.addClass('switch-level-btn');
+    btn.mousePressed(() => {
+      scoreTotal = 0;
+      chargerNiveau(lvl.num);
+    });
+    levelButtons.push(btn);
+  }
 
   // SECTION 1 : Onix (Snake, Flèches & Anneaux soudés)
   let sec1 = createDiv();
@@ -147,9 +252,9 @@ function creerInterfaceUtilisateur() {
   spacingSlider = createSlider(10, 40, 18, 1); spacingSlider.parent(gSp);
 
   let gL = createDiv(); gL.parent(r1); gL.addClass('switch-slider-item');
-  labelLongueurOnix = createSpan('Longueur : 8'); labelLongueurOnix.parent(gL);
-  longueurOnixSlider = createSlider(3, 25, 8, 1); longueurOnixSlider.parent(gL);
-  longueurOnixSlider.changed(reinitialiserJeu);
+  labelLongueurOnix = createSpan('Anneaux départ : 1'); labelLongueurOnix.parent(gL);
+  longueurOnixSlider = createSlider(1, 15, 1, 1); longueurOnixSlider.parent(gL);
+  longueurOnixSlider.changed(() => reinitialiserJeu());
 
   // SECTION 2 : Scorbunny (Evader)
   let sec2 = createDiv();
@@ -194,7 +299,7 @@ function creerInterfaceUtilisateur() {
     Vehicle.debug = debugCheckbox.checked();
   });
 
-  let rulesInfo = createDiv('⚠️ Ne touchez pas les bords de l\'écran ni votre propre corps !');
+  let rulesInfo = createDiv('⚠️ Ne touchez pas les bords, les astéroïdes ni votre propre corps !');
   rulesInfo.parent(sec3);
   rulesInfo.addClass('switch-rules-note');
 
@@ -255,7 +360,7 @@ function mettreAJourBoutonMusique(isPlaying) {
   }
 }
 
-// Calcule une position d'apparition sûre éloignée des coins et des murs mortels de la Switch
+// Calcule une position d'apparition sûre éloignée des coins, des murs, des obstacles et d'Onix
 function positionSureScorbunny() {
   let margin = Math.min(85, width * 0.14, height * 0.18);
   let safeCornerDist = Math.min(165, Math.min(width, height) * 0.30);
@@ -266,7 +371,7 @@ function positionSureScorbunny() {
     createVector(width, height)
   ];
 
-  for (let attempt = 0; attempt < 50; attempt++) {
+  for (let attempt = 0; attempt < 80; attempt++) {
     let x = random(margin, width - margin);
     let y = random(margin, height - margin);
     let isSafe = true;
@@ -277,13 +382,61 @@ function positionSureScorbunny() {
       }
     }
     if (isSafe) {
+      for (let obs of obstacles) {
+        if (dist(x, y, obs.pos.x, obs.pos.y) < obs.r + 75) {
+          isSafe = false;
+          break;
+        }
+      }
+    }
+    if (isSafe && onyx && onyx.head) {
+      if (dist(x, y, onyx.head.pos.x, onyx.head.pos.y) < 120) {
+        isSafe = false;
+      }
+    }
+    if (isSafe) {
       return createVector(x, y);
     }
   }
-  return createVector(width / 2 + random(-80, 80), height / 2 + random(-60, 60));
+  return createVector(width * 0.72, height * 0.5);
+}
+
+function getLevelConfig(num) {
+  let idx = constrain(num - 1, 0, LEVELS.length - 1);
+  return LEVELS[idx];
+}
+
+function mettreAJourBoutonsNiveaux() {
+  let cfg = getLevelConfig(currentLevel);
+  if (labelNiveauActuel) {
+    labelNiveauActuel.html(`⭐ NIVEAU ${cfg.num} / ${LEVELS.length} — ${cfg.nom}`);
+  }
+  for (let i = 0; i < levelButtons.length; i++) {
+    if (i + 1 === currentLevel) {
+      levelButtons[i].addClass('is-active');
+    } else {
+      levelButtons[i].removeClass('is-active');
+    }
+  }
+}
+
+function chargerNiveau(num) {
+  currentLevel = constrain(num, 1, LEVELS.length);
+  let cfg = getLevelConfig(currentLevel);
+
+  // Appliquer les paramètres de difficulté du niveau aux sliders
+  if (vitesseOnixSlider) vitesseOnixSlider.value(cfg.vOnix);
+  if (nbScorbunniesSlider) nbScorbunniesSlider.value(cfg.nbScorbunnies);
+  if (vitesseNormaleScorbunnySlider) vitesseNormaleScorbunnySlider.value(cfg.vNormS);
+  if (vitesseEvadingScorbunnySlider) vitesseEvadingScorbunnySlider.value(cfg.vEvadeS);
+  if (champVisionSlider) champVisionSlider.value(cfg.champVision);
+
+  mettreAJourBoutonsNiveaux();
+  reinitialiserJeu();
 }
 
 function reinitialiserJeu() {
+  let cfg = getLevelConfig(currentLevel);
   gameState = 'PLAYING';
   gameOverTimer = 0;
   gameOverReason = "";
@@ -293,16 +446,24 @@ function reinitialiserJeu() {
   screenShake = 0;
   scoreMiam = 0;
 
-  let initLen = longueurOnixSlider ? longueurOnixSlider.value() : 8;
+  // Construire les obstacles rocheux du niveau (Obstacle extends Vehicle)
+  obstacles = [];
+  for (let o of cfg.obstacles) {
+    obstacles.push(new Obstacle(o.rx, o.ry, o.r));
+  }
+
+  // Onix commence avec 1 seul anneau par défaut !
+  let initLen = longueurOnixSlider ? longueurOnixSlider.value() : 1;
   onyx = new Snake(width / 2, height / 2, initLen, headImg, bodyImg, tailImg);
 
-  totalScorbunniesDebut = nbScorbunniesSlider ? nbScorbunniesSlider.value() : 5;
+  totalScorbunniesDebut = nbScorbunniesSlider ? nbScorbunniesSlider.value() : cfg.nbScorbunnies;
   scorbunnies = [];
   for (let i = 0; i < totalScorbunniesDebut; i++) {
     let pos = positionSureScorbunny();
     let s = new Target(pos.x, pos.y, scorbunnyNormalImg, scorbunnyEvadingImg);
     scorbunnies.push(s);
   }
+  mettreAJourBoutonsNiveaux();
 }
 
 function ajusterScorbunnies() {
@@ -372,7 +533,7 @@ function draw() {
   labelForceOnix.html('Force Max : ' + Number(fOnix).toFixed(2) + ' ');
   labelSlowingRadius.html('Rayon Freinage : ' + slowingRadius + 'px ');
   labelSpacing.html('Écart Anneaux : ' + spacing + 'px ');
-  labelLongueurOnix.html('Longueur Initiale : ' + longueurOnixSlider.value() + ' ');
+  labelLongueurOnix.html('Anneaux départ : ' + longueurOnixSlider.value() + ' ');
 
   labelNbScorbunnies.html('Nombre : ' + nbS + ' ');
   labelVitesseNormaleScorbunny.html('Vit. Normale : ' + vNormS + ' ');
@@ -383,12 +544,12 @@ function draw() {
 
   let audioIcon = gameAudio.bgmPlaying ? '🔊 BGM' : '🔇 Muet';
   let modeIcon = (onyx.controlMode === 'KEYBOARD') ? '🕹️ Flèches' : '🖱️ Souris';
-  let longueurTotale = onyx.anneaux.length + 1;
+  let nbAnneaux = onyx.anneaux.length;
   statusPill.html(
+    `<span class="hud-chip hud-chip-yellow">⭐ Niv. ${currentLevel}/${LEVELS.length}</span>` +
     `<span class="hud-chip hud-chip-coral">🐰 ${scorbunnies.length} / ${totalScorbunniesDebut}</span>` +
-    `<span class="hud-chip hud-chip-blue">🐍 Taille : ${longueurTotale}</span>` +
-    `<span class="hud-chip hud-chip-yellow">${modeIcon}</span>` +
-    `<span class="hud-chip hud-chip-purple">${audioIcon}</span>`
+    `<span class="hud-chip hud-chip-blue">🐍 ${nbAnneaux} ${nbAnneaux > 1 ? 'anneaux' : 'anneau'}</span>` +
+    `<span class="hud-chip hud-chip-purple">${modeIcon} · ${audioIcon}</span>`
   );
 
   if (gameState === 'PLAYING') {
@@ -404,6 +565,11 @@ function draw() {
     // VÉRIFICATION 2 : Auto-collision (le serpent se mord la queue)
     if (gameState === 'PLAYING' && onyx.checkSelfCollision()) {
       declencherCrashMortel("Onix s'est mordu lui-même !");
+    }
+
+    // VÉRIFICATION 3 : Collision avec un obstacle rocheux du niveau
+    if (gameState === 'PLAYING' && onyx.checkObstacleCollision(obstacles)) {
+      declencherCrashMortel("Onix a percuté un astéroïde rocheux !");
     }
 
     // 3. Gestion de la flotte Scorbunny (fuite d'Onix)
@@ -433,14 +599,19 @@ function draw() {
         }
       }
 
-      // Répulsion active et anticipée des 4 coins et des murs (interdit tout contact avec les coins)
+      // Répulsion active et anticipée des 4 coins, des murs et des obstacles
       let cornerForce = scorbunny.avoidCorners(175);
       scorbunny.applyForce(cornerForce);
 
       let wallForce = scorbunny.avoidWalls(60);
       scorbunny.applyForce(wallForce);
 
-      scorbunny.update();
+      if (obstacles.length > 0) {
+        let obsForce = scorbunny.avoidObstacles(obstacles);
+        scorbunny.applyForce(obsForce);
+      }
+
+      scorbunny.update(obstacles);
 
       // Traînée plasma jaune de Scorbunny
       if (scorbunny.vel.mag() > 0.4) {
@@ -463,17 +634,26 @@ function draw() {
       if (d < captureDist) {
         declencherNomMiam(scorbunny.pos.x, scorbunny.pos.y);
         scoreMiam++;
+        scoreTotal++;
         onyx.grow(1);
         scorbunnies.splice(sIdx, 1);
       }
     }
 
-    // Condition de Victoire : Tous les Scorbunnies sont dévorés !
+    // Condition de Victoire du niveau : Tous les Scorbunnies sont dévorés !
     if (scorbunnies.length === 0 && gameState === 'PLAYING') {
-      gameState = 'GAMEOVER';
-      gameOverReason = "VICTOIRE ! Onix a mangé tous les Scorbunnies !";
-      gameOverTimer = 240;
+      gameAudio.playLevelUpSound();
+      if (currentLevel < LEVELS.length) {
+        gameState = 'LEVEL_COMPLETE';
+      } else {
+        gameState = 'VICTORY_ALL';
+      }
     }
+  }
+
+  // 4.5. Rendu des obstacles rocheux du niveau
+  for (let obs of obstacles) {
+    obs.show();
   }
 
   // 5. Rendu des traînées de réacteurs
@@ -512,8 +692,8 @@ function draw() {
 
   pop();
 
-  // Écran de fin de partie (Victoire ou Crash) - redémarrage manuel uniquement (ESPACE ou clic sur l'écran)
-  if (gameState === 'GAMEOVER') {
+  // Écran de fin de niveau, grande victoire ou crash - action manuelle uniquement (ESPACE ou clic)
+  if (gameState === 'GAMEOVER' || gameState === 'LEVEL_COMPLETE' || gameState === 'VICTORY_ALL') {
     dessinerEcranGameOver();
   }
 
@@ -577,49 +757,68 @@ function dessinerEcranGameOver() {
   textAlign(CENTER, CENTER);
   textFont('Fredoka, "Trebuchet MS", system-ui, sans-serif');
 
-  let isVictory = (scorbunnies.length === 0);
+  let isLevelClear = (gameState === 'LEVEL_COMPLETE');
+  let isGrandVictory = (gameState === 'VICTORY_ALL');
 
-  // Bandeau titre coloré (Bleu Joy-Con pour Victoire, Rouge Corail pour Game Over)
-  let badgeW = cardW * 0.78;
-  let badgeH = 56 * s;
-  fill(isVictory ? "#38bdf8" : "#ff4d6d");
+  // Bandeau titre coloré
+  let badgeW = cardW * 0.80;
+  let badgeH = 54 * s;
+  let badgeColor = isGrandVictory ? "#fde047" : (isLevelClear ? "#38bdf8" : "#ff4d6d");
+  fill(badgeColor);
   stroke("#2d174c");
   strokeWeight(3.5 * s);
   rect(cx, cy - cardH * 0.28, badgeW, badgeH, 999);
 
-  fill("#ffffff");
-  stroke("#2d174c");
-  strokeWeight(3.5 * s);
-  textSize(34 * s);
-  text(isVictory ? "★ MIAM ! VICTOIRE ! ★" : "GAME OVER !", cx, cy - cardH * 0.28 + 1 * s);
+  fill(isGrandVictory ? "#2d174c" : "#ffffff");
+  if (!isGrandVictory) {
+    stroke("#2d174c");
+    strokeWeight(3.5 * s);
+  } else {
+    noStroke();
+  }
+  textSize(30 * s);
+  let titleText = isGrandVictory
+    ? "👑 CHAMPION POKÉMON ! 👑"
+    : (isLevelClear ? `★ NIVEAU ${currentLevel} RÉUSSI ! ★` : `GAME OVER — NIV. ${currentLevel}`);
+  text(titleText, cx, cy - cardH * 0.28 + 1 * s);
 
   // Sous-titre
   noStroke();
   fill("#2d174c");
-  textSize(19 * s);
-  if (isVictory) {
-    let totalAnneaux = onyx.anneaux.length + 1;
-    text("Onix a tout dévoré (" + totalAnneaux + " anneaux rocheux) !", cx, cy + 4 * s);
+  textSize(18 * s);
+  if (isGrandVictory) {
+    text("Incroyable ! Vous avez terminé les " + LEVELS.length + " niveaux !", cx, cy + 2 * s);
+  } else if (isLevelClear) {
+    let nextCfg = getLevelConfig(currentLevel + 1);
+    text("Prochain défi : Niv. " + nextCfg.num + " — " + nextCfg.nom + " (" + nextCfg.obstacles.length + " astéroïdes)", cx, cy + 2 * s);
   } else {
-    text(gameOverReason, cx, cy + 4 * s);
+    text(gameOverReason, cx, cy + 2 * s);
   }
 
   // Pastille de score jaune Pikachu
   fill("#fde047");
   stroke("#2d174c");
   strokeWeight(2.5 * s);
-  rect(cx, cy + 46 * s, 260 * s, 36 * s, 999);
+  rect(cx, cy + 46 * s, 310 * s, 36 * s, 999);
 
   noStroke();
   fill("#2d174c");
-  textSize(16 * s);
-  text("💥 Scorbunnies dévorés : " + scoreMiam, cx, cy + 47 * s);
+  textSize(15.5 * s);
+  let scoreText = isGrandVictory
+    ? "💥 Total Scorbunnies dévorés : " + scoreTotal
+    : "💥 Mangés : " + scoreMiam + "  |  🐍 Anneaux : " + onyx.anneaux.length;
+  text(scoreText, cx, cy + 47 * s);
 
-  // Invite pulsée pour rejouer
+  // Invite pulsée pour continuer / rejouer
   let pulseAlpha = map(sin(frameCount * 0.08), -1, 1, 130, 255);
   fill(147, 51, 234, pulseAlpha);
   textSize(14.5 * s);
-  text("Appuyez sur ESPACE ou cliquez sur l'écran pour rejouer", cx, cy + cardH * 0.37);
+  let promptText = isGrandVictory
+    ? "Appuyez sur ESPACE ou cliquez pour recommencer au Niveau 1"
+    : (isLevelClear
+      ? "Appuyez sur ESPACE ou cliquez pour passer au Niveau " + (currentLevel + 1)
+      : "Appuyez sur ESPACE ou cliquez pour réessayer le Niveau " + currentLevel);
+  text(promptText, cx, cy + cardH * 0.37);
   pop();
 }
 
@@ -652,6 +851,17 @@ function drawDebugLegend() {
   pop();
 }
 
+function gererActionFinDeManche() {
+  if (gameState === 'LEVEL_COMPLETE') {
+    chargerNiveau(currentLevel + 1);
+  } else if (gameState === 'VICTORY_ALL') {
+    scoreTotal = 0;
+    chargerNiveau(1);
+  } else if (gameState === 'GAMEOVER') {
+    reinitialiserJeu();
+  }
+}
+
 function keyPressed() {
   // Contrôle directionnel classique au clavier (Flèches & WASD / ZQSD)
   if (keyCode === UP_ARROW || key === 'z' || key === 'Z' || key === 'w' || key === 'W') {
@@ -674,8 +884,8 @@ function keyPressed() {
     gameAudio.init();
   }
 
-  if (key === ' ' && gameState === 'GAMEOVER') {
-    reinitialiserJeu();
+  if (key === ' ' && gameState !== 'PLAYING') {
+    gererActionFinDeManche();
   }
 }
 
@@ -685,8 +895,8 @@ function mousePressed() {
     mettreAJourBoutonMusique(true);
   }
 
-  if (gameState === 'GAMEOVER' && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-    reinitialiserJeu();
+  if (gameState !== 'PLAYING' && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+    gererActionFinDeManche();
   }
 }
 
@@ -694,7 +904,10 @@ function windowResized() {
   let size = getSwitchScreenSize();
   resizeCanvas(size.w, size.h);
 
-  // Recadrer les entités à l'intérieur du nouvel écran Switch si la fenêtre rétrécit
+  // Recadrer les obstacles et entités à l'intérieur du nouvel écran Switch
+  for (let obs of obstacles) {
+    obs.syncPosition();
+  }
   if (onyx && onyx.head) {
     onyx.head.pos.x = constrain(onyx.head.pos.x, 40, width - 40);
     onyx.head.pos.y = constrain(onyx.head.pos.y, 40, height - 40);

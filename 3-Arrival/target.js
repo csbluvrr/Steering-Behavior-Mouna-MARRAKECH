@@ -98,8 +98,41 @@ class Target extends Vehicle {
     return steer;
   }
 
-  // Confinement physique absolu : barrière infranchissable sur les 4 coins et rebond aux parois
-  containAndBounce() {
+  // Évitement actif des obstacles rocheux (pour que Scorbunny les contourne)
+  avoidObstacles(obstacles) {
+    let steerTotal = createVector(0, 0);
+    for (let obs of obstacles) {
+      let detectDist = obs.r + this.r + 55;
+      let d = p5.Vector.dist(this.pos, obs.pos);
+      if (d < detectDist && d > 0.001) {
+        let diff = p5.Vector.sub(this.pos, obs.pos);
+        let factor = map(d, obs.r + this.r, detectDist, 2.0, 0.5, true);
+        let desired = diff.normalize().mult(this.maxSpeed * factor);
+        let steer = p5.Vector.sub(desired, this.vel);
+        steer.limit(this.maxForce * 2.0);
+        steerTotal.add(steer);
+      }
+    }
+    return steerTotal;
+  }
+
+  // Confinement physique absolu : barrière infranchissable sur les 4 coins, obstacles et parois
+  containAndBounce(obstacles = []) {
+    // 0. Rebond physique hors des obstacles rocheux
+    for (let obs of obstacles) {
+      let minDist = obs.r + this.r * 0.85;
+      let d = p5.Vector.dist(this.pos, obs.pos);
+      if (d < minDist) {
+        let pushDir = p5.Vector.sub(this.pos, obs.pos);
+        if (pushDir.magSq() < 0.001) pushDir = p5.Vector.random2D();
+        pushDir.normalize();
+        this.pos.set(p5.Vector.add(obs.pos, p5.Vector.mult(pushDir, minDist)));
+        let dot = p5.Vector.dot(this.vel, pushDir);
+        if (dot < 0) {
+          this.vel.sub(p5.Vector.mult(pushDir, 2 * dot));
+        }
+      }
+    }
     let corners = [
       createVector(0, 0),
       createVector(width, 0),
@@ -147,14 +180,14 @@ class Target extends Vehicle {
     }
   }
 
-  update() {
+  update(obstacles = []) {
     this.vel.add(this.acc);
     this.vel.limit(this.maxSpeed);
     this.pos.add(this.vel);
     this.acc.set(0, 0);
 
-    // Maintien strict dans l'espace jouable & protection absolue contre les coins
-    this.containAndBounce();
+    // Maintien strict dans l'espace jouable & protection absolue contre les coins et obstacles
+    this.containAndBounce(obstacles);
   }
 
   show() {

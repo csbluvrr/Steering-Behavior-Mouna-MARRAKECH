@@ -145,6 +145,11 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
       - **Collision avec les Murs** : Franchir les limites de l'écran provoque un crash fatal (`checkWallCollision()`) avec son de choc rocheux (`playCrashSound()`) et Game Over.
       - **Auto-Collision** : Toucher son propre corps rocheux (à partir du 4ème anneau) est mortel (`checkSelfCollision()`).
       - **Bordure visuelle de danger** : Cadre néon rouge d'avertissement autour de l'arène.
+    - **Progression par Niveaux & Obstacles Rocheux (`Obstacle extends Vehicle`)** :
+      - Onix démarre désormais avec **1 seul anneau** au début de chaque manche (`initialLength = 1`).
+      - **5 niveaux à complexité croissante** : nombre de Scorbunnies (4 → 12), vitesses d'Onix et de fuite, champ de vision (150 → 300 px) et ajout progressif de 0 à 6 astéroïdes rocheux fixes (`3-Arrival/obstacle.js`, `Obstacle extends Vehicle`, `maxSpeed = 0`).
+      - Les Scorbunnies contournent activement les obstacles (`avoidObstacles`), tandis qu'un impact avec Onix déclenche le Game Over.
+      - Fanfare chiptune de passage de niveau (`playLevelUpSound()`), sélecteur de niveaux dans le menu burger, et transition manuelle (<kbd>ESPACE</kbd> ou clic sur l'écran Switch).
     - **Intégration Console Portable Nintendo Switch (`switch_frame.png`)** :
       - Découpage propre avec transparence et anti-aliasing de l'écran vert de `ressources/switch background.png` vers `ressources/switch_frame.png`.
       - Le canvas p5.js est monté dans `#game-screen-slot` (aligné au pixel près sur l'ouverture de l'écran) sous la couche transparente `#switch-overlay` (`pointer-events: none`), donnant l'illusion parfaite que le jeu tourne sur l'écran de la console.

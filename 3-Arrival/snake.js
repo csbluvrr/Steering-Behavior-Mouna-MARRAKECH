@@ -1,5 +1,5 @@
 class Snake extends Vehicle {
-  constructor(x, y, initialLength = 8, headSprite = null, bodySprite = null, tailSprite = null) {
+  constructor(x, y, initialLength = 1, headSprite = null, bodySprite = null, tailSprite = null) {
     super(x, y);
 
     this.headSprite = headSprite;
@@ -105,6 +105,18 @@ class Snake extends Vehicle {
       let seg = this.anneaux[i];
       let dSq = (this.head.pos.x - seg.pos.x) ** 2 + (this.head.pos.y - seg.pos.y) ** 2;
       let minDist = (this.head.r * 0.55 + seg.r * 0.55);
+      if (dSq < minDist * minDist) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Collision mortelle avec un obstacle rocheux (Obstacle extends Vehicle)
+  checkObstacleCollision(obstacles) {
+    for (let obs of obstacles) {
+      let dSq = (this.head.pos.x - obs.pos.x) ** 2 + (this.head.pos.y - obs.pos.y) ** 2;
+      let minDist = this.head.r * 0.65 + obs.r * 0.85;
       if (dSq < minDist * minDist) {
         return true;
       }

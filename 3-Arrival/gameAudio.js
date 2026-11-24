@@ -258,4 +258,30 @@ class GameAudio {
       osc.stop(now + 0.37);
     } catch (e) {}
   }
+
+  // Fanfare joyeuse chiptune lors du passage au niveau supérieur
+  playLevelUpSound() {
+    this.init();
+    if (!this.ctx) return;
+    try {
+      let now = this.ctx.currentTime;
+      let notes = [523.25, 659.25, 783.99, 1046.5]; // Do5, Mi5, Sol5, Do6
+      notes.forEach((freq, i) => {
+        let t = now + i * 0.085;
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, t);
+
+        let dur = (i === notes.length - 1) ? 0.35 : 0.12;
+        gain.gain.setValueAtTime(this.sfxVolume * 0.55, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
+      });
+    } catch (e) {}
+  }
 }

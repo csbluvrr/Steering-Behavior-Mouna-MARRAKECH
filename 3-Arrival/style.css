@@ -289,6 +289,35 @@ html, body {
   color: var(--ink);
 }
 
+.switch-section-levels {
+  background: #ecfdf5;
+}
+
+.switch-level-btn {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 2px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.switch-level-btn:hover {
+  transform: translateY(-1px);
+  background: #fef9c3;
+}
+
+.switch-level-btn.is-active {
+  background: var(--pika-yellow);
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+}
+
 /* Sliders kawaii façon manette Switch */
 .burger-menu-panel input[type="range"] {
   -webkit-appearance: none;
