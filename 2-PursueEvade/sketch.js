@@ -49,11 +49,16 @@ function preload() {
   gengarSeekingImg = loadImage('./ressources 2/gengar_seeking.png', () => {}, onErr('gengar_seeking'));
   scorbunnyNormalImg = loadImage('./ressources 2/scorbunny_normal.png', () => {}, onErr('scorbunny_normal'));
   scorbunnyEvadingImg = loadImage('./ressources 2/scorbunny_evading.png', () => {}, onErr('scorbunny_evading'));
-  bgImg = loadImage('./ressources 2/background_2.png', () => {}, onErr('background_2'));
+  bgImg = loadImage('./ressources 2/background.gif', () => {}, onErr('background.gif'));
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  // Démarrer la lecture de l'animation GIF de fond si pris en charge
+  if (bgImg && typeof bgImg.play === 'function') {
+    bgImg.play();
+  }
 
   // Initialisation du synthétiseur Web Audio API
   gameAudio = new GameAudio();
