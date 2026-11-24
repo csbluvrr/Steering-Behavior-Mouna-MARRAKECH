@@ -1,0 +1,110 @@
+# HANDOFF.md - Protocole de Transmission Inter-IA
+
+> Ce document sert de point de passage de relais technique entre assistants IA (Claude, Gemini, OpenAI Codex, GitHub Copilot, Cursor, Windsurf, etc.) ou entre sessions de travail.
+> **Toute IA reprenant ce projet DOIT lire ce fichier, ainsi que [ARCHITECTURE.md](ARCHITECTURE.md), avant d'écrire ou de modifier la moindre ligne de code.**
+
+---
+
+## 1. Contexte du Projet
+
+- **Projet** : Suite d'applications interactives p5.js démontrant les **Steering Behaviors** d'agents autonomes.
+- **Référence Théorique** : Craig W. Reynolds, *Steering Behaviors For Autonomous Characters* (GDC 1999).
+  - Emplacement de l'article : `article craig reynolds/Steering Behaviors For Autonomous Characters.pdf`.
+- **Niveau / Cadre** : 5e année / Master IA & Jeu Vidéo.
+
+---
+
+## 2. Invariants Architecturaux Inviolables (Règles d'Or)
+
+| Règle | Spécification Impérative |
+|---|---|
+| **1 Classe / Fichier** | Chaque fichier `.js` doit héberger une seule et unique classe (ex: `Vehicle` dans `vehicle.js`, `Obstacle` dans `obstacle.js`). Ne jamais empiler plusieurs classes dans le même fichier. |
+| **Entité Universelle : `Vehicle`** | Tout élément visuel mobile **doit** être une instance ou une sous-classe de `Vehicle`. Le mouvement est obligatoirement piloté par des steering forces ($\vec{F} = \vec{v}_{\text{desired}} - \vec{v}$). |
+| **Obstacles Fixes = `Vehicle`** | Les obstacles statiques (rochers, murs, cibles fixes) sont aussi des sous-classes de `Vehicle` (ex: `Obstacle extends Vehicle`) avec `maxSpeed = 0` par défaut. |
+| **Objets Spécialisés** | Joueur (`Player`), Ennemis (`Enemy`), Vaisseaux (`Spaceship`), Missiles (`Missile`), Scores flottants (`AnimatedScore`) dérivent tous obligatoirement de `Vehicle`. |
+| **Performance p5.js** | Ne jamais instancier d'éléments DOM dans `draw()`. Éviter la création de nouveaux objets `p5.Vector` à chaque frame dans `draw()`. Utiliser `distSq` pour les seuils de proximité. |
+
+---
+
+## 3. Cartographie des Dossiers et État Actuel
+
+1. **`1-Seek/`** :
+   - Implémente `seek(target)` et `flee(target)`.
+   - Classes : `Vehicle`, `Target extends Vehicle`.
+2. **`2-PursueEvade/` & `2-PursueEvade_correction/`** :
+   - Implémente la prédiction de position future pour la poursuite (`pursue`) et l'évasion (`evade`).
+   - Classes : `Vehicle`, `Target extends Vehicle`, `BouncingBall extends Vehicle`.
+3. **`3-Arrival/` & `3-Arrival_correction/`** :
+   - Implémente `arrive(target, slowingRadius)` avec décélération douce.
+   - Variantes avancées en correction : `Snake extends Vehicle`, `SnakeWander extends Vehicle`.
+4. **`4-Wander/`** :
+   - Implémente l'errance autonome (`wander`) avec projection de cercle virtuel devant le véhicule, perturbation angulaire $\theta \pm \Delta\theta$, et mode debug visuel.
+   - Classe : `Vehicle`.
+5. **Dossiers d'infrastructure** :
+   - `docs/P5_BEST_PRACTICES.md` : Standards de performance et de style p5.js.
+   - `scripts/update-readme.js` : Script de scan et mise à jour automatique du `README.md`.
+   - `.github/copilot-instructions.md` & `CLAUDE.md` / `GEMINI.md` / `CODEX.md` / `AGENTS.md` : Consignes pour chaque assistant.
+
+---
+
+## 4. Prochains Comportements & Modules à Implémenter (Roadmap Reynolds)
+
+Lors de la création de nouveaux modules ou exercices, suivre la numérotation séquentielle et créer un dossier propre par comportement :
+
+- [ ] **`5-ObstacleAvoidance/`** : Évitement d'obstacles circulaires/sphériques (`Obstacle extends Vehicle`) par sondes frontales (*feelers*), force latérale et freinage.
+- [ ] **`6-WallFollowing-Containment/`** : Maintien dans une zone fermée ou suivi de murs par détection normale.
+- [ ] **`7-PathFollowing/`** : Suivi d'un chemin (segments / polyline) avec projection orthogonale et point d'anticipation.
+- [ ] **`8-FlowField/`** : Navigation par champ de vecteurs (grille de bruit de Perlin).
+- [ ] **`9-Flocking/`** : Simulation de banc/boids combinant Séparation, Cohésion et Alignement.
+- [ ] **`10-LeaderFollowing-Queuing/`** : Suivi d'un leader avec formation en file et gestion des étranglements.
+
+---
+
+## 5. Checklist pour l'Assistant IA Entrant
+
+Avant de répondre à l'utilisateur ou d'ajouter du code :
+- [ ] Vérifier que toute nouvelle classe a son propre fichier `.js`.
+- [ ] Vérifier que tout objet graphique hérite de `Vehicle`.
+- [ ] Mettre à jour les balises `<script>` dans le `index.html` concerné.
+- [ ] Lancer `node scripts/update-readme.js` après avoir ajouté ou modifié un module pour garder le `README.md` à jour.
+- [ ] Noter la tâche accomplie dans la section *Journal des modifications* ci-dessous.
+
+---
+
+## 6. Journal des Modifications (Changelog de Session)
+
+### Session 23 Novembre 2026
+- **Architecture** : Création de [ARCHITECTURE.md](ARCHITECTURE.md) synthétisant les règles d'or (classe unique, Vehicle universel, obstacles comme Vehicle, spécialisation) et inventaire complet des 18 comportements de Craig Reynolds.
+- **Bonnes Pratiques p5.js** : Rédaction et structuration de [docs/P5_BEST_PRACTICES.md](docs/P5_BEST_PRACTICES.md) (performance canvas, GC, batching, math).
+- **Directives IA** : Création des fichiers standards [CLAUDE.md](CLAUDE.md), [GEMINI.md](GEMINI.md), [CODEX.md](CODEX.md), [.github/copilot-instructions.md](.github/copilot-instructions.md), [COPILOT.md](COPILOT.md) et [AGENTS.md](AGENTS.md).
+- **Automatisation README** : Création de [scripts/update-readme.js](scripts/update-readme.js), configuration du hook `.git/hooks/pre-commit`, création de [package.json](package.json), et génération dynamique de la table dans [README.md](README.md).
+- **Module 1-Seek** :
+  - Implémentation de la fonction `creerVehicules(nb)` pour instancier une flottille de véhicules suiveurs avec positions aléatoires.
+  - Activation de la méthode `edges()` dans la boucle `draw()` pour assurer le wrapping torique des véhicules aux bords de l'écran.
+  - **Cibles autonomes Scorbunnies (`Target extends Vehicle`)** :
+    - Direction et vitesse aléatoires entre -7 et +7.
+    - Rayon aléatoire entre 10 et 100 px.
+    - Rebond physique sur les bords de l'écran (`bounceEdges`).
+    - Curseur pour régler le nombre de cibles en direct (entre 0 et 20).
+  - **Détection & Chasse par les Gengars (`Vehicle`)** :
+    - Cercle de détection propre à chaque Gengar, rayon par défaut de 150 px (curseur entre 20 et 200 px), affiché en mode debug.
+    - Lorsqu'une cible est détectée dans le cercle, le Gengar applique `seek` sur la cible la plus proche.
+    - Si le Gengar touche la cible (distance < 5 px), la cible disparaît et réapparaît à une position aléatoire (`respawn()`).
+  - **Comportement de Fuite d'Urgence des Cibles (`flee`)** :
+    - Cercle de détection de danger propre à Scorbunny (rayon par défaut 100 px, réglable par curseur, affiché en debug).
+    - Dès qu'un Gengar entre dans ce cercle, Scorbunny fuit (`flee`) en augmentant temporairement sa vitesse max (12) et son accélération (2.5x).
+    - La fuite active est maintenue jusqu'à ce que la distance au Gengar dépasse 300 px (distance de sécurité réglable par curseur).
+  - **Effet d'Explosion, Onomatopée Comic & Son Pop (`Particle`, `ComicBoom extends Vehicle`)** :
+    - Classe [1-Seek/particle.js](file:///c:/Users/jaimi/Documents/skl/5th%20year/double%20diplo/GAMES/Steering-Behavior-Mouna-MARRAKECH/1-Seek/particle.js) : 35 particules incandescentes projetées en éventail.
+    - Classe [1-Seek/comicBoom.js](file:///c:/Users/jaimi/Documents/skl/5th%20year/double%20diplo/GAMES/Steering-Behavior-Mouna-MARRAKECH/1-Seek/comicBoom.js) : Onomatopée cartoon style comic book ("BOOM !", "POP !", "POW !", "KAPOW !") avec étoile crénelée, rebond élastique (pop-in) et dérive ascendante.
+    - Synthétiseur audio Web Audio API : Génération instantanée d'un son mignon de bulle/pop lors de chaque capture/explosion, sans dépendance de fichier externe.
+    - Le Scorbunny touché disparaît et réapparaît instantanément à une position aléatoire avec une nouvelle vitesse (`respawn()`).
+  - Interface complète avec deux rangées de curseurs (Gengars & Scorbunnies), case à cocher debug avec touche <kbd>D</kbd>, et fond d'écran `seekbackground.jpg`.
+- **Module 2-PursueEvade** :
+  - Implémentation complète des comportements de pilotage prédictif de Craig Reynolds : `pursue(target)` et `evade(target)` basés sur l'anticipation temporelle $\Delta t = \text{dist} / v_{\text{max}}$.
+  - Intégration des sprites Pokémon agrandis et de l'arrière-plan `seekbackground.jpg` : Gengar en poursuiveur autonome, Scorbunnies en cibles bondissantes (`BouncingBall extends Target extends Vehicle`).
+  - Zone de détection interactive (`rayonDetection`) : les Scorbunnies fuient avec prédiction dès que Gengar approche.
+  - Détection de capture : repositionnement aléatoire lors de l'interception.
+  - Interface complète avec 4 sliders (vitesses, forces, rayon de détection) et case à cocher pour visualiser les points d'interception futurs (vert = visée de poursuite, orange = anticipation de fuite).
+  - Contrôle interactif : clic gauche pour téléporter Gengar, <kbd>Shift</kbd> + clic pour ajouter des Scorbunnies supplémentaires.
+- **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).

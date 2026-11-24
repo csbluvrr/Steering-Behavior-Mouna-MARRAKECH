@@ -1,0 +1,18 @@
+{
+  "name": "steering-behaviors-p5",
+  "version": "1.0.0",
+  "description": "Suite d'applications et démonstrations des Steering Behaviors de Craig Reynolds avec p5.js",
+  "scripts": {
+    "update-readme": "node scripts/update-readme.js",
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "p5js",
+    "steering-behaviors",
+    "craig-reynolds",
+    "autonomous-agents",
+    "simulation"
+  ],
+  "author": "Mouna",
+  "license": "MIT"
+}
