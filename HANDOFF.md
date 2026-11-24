@@ -121,7 +121,7 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - **Sprites agrandis** : Dimensions accrues ($r=65$ pour Gengar, $r=55$ pour Scorbunny) pour une lisibilité et un impact visuel maximum.
     - **Destruction permanente & Game Over** : Chaque Scorbunny capturé par un Gengar explose et est définitivement détruit de la manche. Lorsque **tous les Scorbunnies sont détruits** (`scorbunnies.length === 0`), l'écran de **Game Over** apparaît avec le score total, un compte à rebours de 4 secondes ou une relance instantanée via la touche <kbd>ESPACE</kbd> / clic. L'IHM affiche le compteur en direct : `🐰 Scorbunnies : X / Total | 💥 Détruits : Y`.
   - **Décors & Ambiance Vaisseaux Spatiaux** :
-    - Image d'arrière-plan haute définition `background 2.jpg` intégrée.
+    - Image d'arrière-plan haute définition `background_2.png` intégrée.
     - **Traînées de réacteurs (`TrailParticle extends Vehicle`)** : Émission de particules de plasma fluide à l'arrière des vaisseaux (traînée spectrale violette pour Gengar, traînée solaire jaune électrique pour Scorbunny, avec surcroît de poussée lors des phases de poursuite/fuite).
   - **Système Audio Synthétique Chiptune & FX (`GameAudio`)** :
     - **Musique de fond rétro-synthétique (BGM)** générée procéduralement en temps réel via Web Audio API (boucle chiptune en Ré mineur avec basse triangulaire, arpèges cosmiques carrés et percussions rétro), avec bouton marche/arrêt et curseur de volume dédié.

@@ -49,7 +49,7 @@ function preload() {
   gengarSeekingImg = loadImage('./ressources 2/gengar_seeking.png', () => {}, onErr('gengar_seeking'));
   scorbunnyNormalImg = loadImage('./ressources 2/scorbunny_normal.png', () => {}, onErr('scorbunny_normal'));
   scorbunnyEvadingImg = loadImage('./ressources 2/scorbunny_evading.png', () => {}, onErr('scorbunny_evading'));
-  bgImg = loadImage('./ressources 2/background_2.jpg', () => {}, onErr('background_2'));
+  bgImg = loadImage('./ressources 2/background_2.png', () => {}, onErr('background_2'));
 }
 
 function setup() {

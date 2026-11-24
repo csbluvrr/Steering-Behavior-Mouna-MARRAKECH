@@ -5,7 +5,7 @@ Ce projet rassemble une suite d'applications, d'exercices et de simulations inte
 L'article original est consultable dans le dossier :
 `article craig reynolds/Steering Behaviors For Autonomous Characters.pdf`
 
-<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 10:30:18 UTC* <!-- END:LAST_UPDATED -->
+<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 10:59:23 UTC* <!-- END:LAST_UPDATED -->
 
 ---
 
