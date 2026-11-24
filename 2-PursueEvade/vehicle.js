@@ -1,66 +1,75 @@
 class Vehicle {
   static debug = false;
 
-  constructor(x, y, image = null) {
-    // position du véhicule
+  constructor(x, y, normalSprite = null, seekingSprite = null) {
     this.pos = createVector(x, y);
-    // vitesse du véhicule
     this.vel = createVector(0, 0);
-    // accélération du véhicule
     this.acc = createVector(0, 0);
-    // vitesse maximale du véhicule
     this.maxSpeed = 8;
-    // force maximale appliquée au véhicule
-    this.maxForce = 0.3;
-    // rayon du véhicule
-    this.r = 30;
-    // Sprite image optionnel
-    this.image = image;
+    this.maxForce = 0.35;
+    this.r = 45;
+
+    // Sprites pour la machine à états
+    this.normalSprite = normalSprite;
+    this.seekingSprite = seekingSprite || normalSprite;
+    this.isSeeking = false;
+
+    // Champ de vision (cercle de détection)
+    this.champDeVision = 220;
+
+    // Dernière force de pilotage calculée pour le débug
+    this.currentSteeringForce = createVector(0, 0);
+    this.lastTargetAhead = null;
   }
 
-  /*
-   seek est une méthode qui permet de faire se rapprocher le véhicule de la cible passée en paramètre
-   */
+  // Comportement Seek standard de Craig Reynolds
   seek(target) {
-    // on calcule la direction vers la cible (vitesse désirée)
-    let desiredSpeed = p5.Vector.sub(target, this.pos);
+    let targetPos = target.pos ? target.pos : target;
+    let desiredSpeed = p5.Vector.sub(targetPos, this.pos);
     desiredSpeed.setMag(this.maxSpeed);
 
-    // formule de Reynolds : force = vitesse désirée - vitesse actuelle
     let force = p5.Vector.sub(desiredSpeed, this.vel);
     force.limit(this.maxForce);
     return force;
   }
 
-  // inverse de seek : fuite directe
+  // Comportement Flee standard (inversion de la vitesse désirée)
   flee(target) {
-    let desiredSpeed = p5.Vector.sub(this.pos, target);
+    let targetPos = target.pos ? target.pos : target;
+    let desiredSpeed = p5.Vector.sub(this.pos, targetPos);
     desiredSpeed.setMag(this.maxSpeed);
+
     let force = p5.Vector.sub(desiredSpeed, this.vel);
     force.limit(this.maxForce);
     return force;
   }
 
   /* 
-   Poursuite d'un point devant la cible avec prédiction de trajectoire (Craig Reynolds).
-   Renvoie la force de pilotage à appliquer.
+   Comportement Pursuit (Poursuite avec anticipation) :
+   Vise un point situé DEVANT la cible dans sa direction de déplacement.
+   predictionFrames : nombre de frames projetées dans le futur (ex: 10).
   */
-  pursue(target) {
-    // Calcul du temps d'anticipation proportionnel à la distance (Reynolds 1999)
-    let d = p5.Vector.dist(this.pos, target.pos);
-    let prediction = d / this.maxSpeed;
-
-    // Position future estimée de la cible
-    let targetAhead = p5.Vector.mult(target.vel, prediction);
+  pursue(target, predictionFrames = 10) {
+    // Position future estimée : pos + vel * predictionFrames
+    let targetAhead = p5.Vector.mult(target.vel, predictionFrames);
     targetAhead.add(target.pos);
+    this.lastTargetAhead = targetAhead.copy();
 
+    // Rendu en mode debug : tracé et cercle vert sur le point prédit
     if (Vehicle.debug) {
-      // Trace visuelle du vecteur d'anticipation
-      this.drawVector(target.pos, p5.Vector.mult(target.vel, prediction));
       push();
-      fill("green");
-      noStroke();
-      circle(targetAhead.x, targetAhead.y, 16);
+      // Ligne d'anticipation reliant la cible au point futur
+      stroke("rgba(0, 255, 136, 0.7)");
+      strokeWeight(2);
+      drawingContext.setLineDash([4, 6]);
+      line(target.pos.x, target.pos.y, targetAhead.x, targetAhead.y);
+      drawingContext.setLineDash([]);
+
+      // Point prédit sous forme de cercle vert
+      fill("#00ff88");
+      stroke(0);
+      strokeWeight(1.5);
+      circle(targetAhead.x, targetAhead.y, 14);
       pop();
     }
 
@@ -68,31 +77,35 @@ class Vehicle {
   }
 
   /* 
-   Évasion : fuite du point d'interception futur du poursuiveur.
+   Comportement Evade (Évasion avec anticipation) :
+   Inverse de Pursuit : inverse la VITESSE DÉSIRÉE par rapport au point futur de la menace.
   */
-  evade(target) {
-    let d = p5.Vector.dist(this.pos, target.pos);
-    let prediction = d / this.maxSpeed;
-
-    // Anticipation de la trajectoire future de la menace
-    let targetAhead = p5.Vector.mult(target.vel, prediction);
-    targetAhead.add(target.pos);
+  evade(threat, predictionFrames = 10) {
+    let threatAhead = p5.Vector.mult(threat.vel, predictionFrames);
+    threatAhead.add(threat.pos);
 
     if (Vehicle.debug) {
       push();
-      fill("orange");
-      noStroke();
-      circle(targetAhead.x, targetAhead.y, 12);
+      stroke("rgba(255, 140, 0, 0.7)");
+      strokeWeight(2);
+      drawingContext.setLineDash([4, 6]);
+      line(threat.pos.x, threat.pos.y, threatAhead.x, threatAhead.y);
+      drawingContext.setLineDash([]);
+
+      fill("#ff8c00");
+      stroke(0);
+      strokeWeight(1.5);
+      circle(threatAhead.x, threatAhead.y, 14);
       pop();
     }
 
-    // Fuite du point futur
-    return this.flee(targetAhead);
+    // Fuite du point futur anticipé (inversion de la vitesse désirée)
+    return this.flee(threatAhead);
   }
 
-  // applyForce permet d'additionner une force à l'accélération
   applyForce(force) {
     this.acc.add(force);
+    this.currentSteeringForce.set(force);
   }
 
   update() {
@@ -100,11 +113,26 @@ class Vehicle {
     this.vel.limit(this.maxSpeed);
     this.pos.add(this.vel);
     this.acc.set(0, 0);
+
+    // Le véhicule ne traverse pas l'écran, il reste dans les limites du canvas (rebond doux)
+    this.bounceEdges();
   }
 
-  // Rendu graphique du véhicule
   show() {
-    if (this.image) {
+    // 1. Cercle du champ de vision affiché en mode debug
+    if (Vehicle.debug) {
+      push();
+      noFill();
+      stroke(this.isSeeking ? "rgba(0, 255, 136, 0.75)" : "rgba(255, 255, 255, 0.25)");
+      strokeWeight(this.isSeeking ? 2 : 1);
+      circle(this.pos.x, this.pos.y, this.champDeVision * 2);
+      pop();
+    }
+
+    // 2. Sélection dynamique du sprite selon l'état de détection
+    let activeSprite = this.isSeeking ? this.seekingSprite : this.normalSprite;
+
+    if (activeSprite) {
       push();
       translate(this.pos.x, this.pos.y);
       imageMode(CENTER);
@@ -112,49 +140,63 @@ class Vehicle {
       if (this.vel.x < 0) {
         scale(-1, 1);
       }
-      image(this.image, 0, 0, this.r * 2, this.r * 2);
+      image(activeSprite, 0, 0, this.r * 2, this.r * 2);
       pop();
     } else {
       push();
       stroke(255);
       strokeWeight(2);
-      fill(255);
+      fill(this.isSeeking ? "#a855f7" : 255);
       translate(this.pos.x, this.pos.y);
       rotate(this.vel.heading());
       triangle(-this.r, -this.r / 2, -this.r, this.r / 2, this.r, 0);
       pop();
     }
 
+    // 3. Rendu des vecteurs de forces en mode debug
     if (Vehicle.debug) {
-      this.drawVector(this.pos, this.vel.copy().mult(10));
+      this.drawVector(this.pos, this.vel, "red", 8);
+      if (this.currentSteeringForce && this.currentSteeringForce.magSq() > 0) {
+        this.drawVector(this.pos, this.currentSteeringForce, "#00ff88", 65);
+      }
     }
   }
 
-  drawVector(pos, v) {
+  drawVector(pos, v, col, scaleFactor = 1) {
+    if (!v || (v.x === 0 && v.y === 0)) return;
     push();
-    strokeWeight(2);
-    stroke("red");
-    line(pos.x, pos.y, pos.x + v.x, pos.y + v.y);
-    let arrowSize = 5;
-    translate(pos.x + v.x, pos.y + v.y);
+    stroke(col);
+    strokeWeight(2.5);
+    fill(col);
+
+    let endX = pos.x + v.x * scaleFactor;
+    let endY = pos.y + v.y * scaleFactor;
+
+    line(pos.x, pos.y, endX, endY);
+
+    let arrowSize = 6;
+    translate(endX, endY);
     rotate(v.heading());
     translate(-arrowSize / 2, 0);
-    fill("red");
     triangle(0, arrowSize / 2, 0, -arrowSize / 2, arrowSize, 0);
     pop();
   }
 
-  // Boucle torique aux bords de l'écran
-  edges() {
-    if (this.pos.x > width + this.r) {
-      this.pos.x = -this.r;
-    } else if (this.pos.x < -this.r) {
-      this.pos.x = width + this.r;
+  // Maintien dans les limites de l'écran par rebond (le véhicule ne réapparaît pas de l'autre côté)
+  bounceEdges() {
+    if (this.pos.x - this.r <= 0) {
+      this.pos.x = this.r;
+      this.vel.x = -this.vel.x;
+    } else if (this.pos.x + this.r >= width) {
+      this.pos.x = width - this.r;
+      this.vel.x = -this.vel.x;
     }
-    if (this.pos.y > height + this.r) {
-      this.pos.y = -this.r;
-    } else if (this.pos.y < -this.r) {
-      this.pos.y = height + this.r;
+    if (this.pos.y - this.r <= 0) {
+      this.pos.y = this.r;
+      this.vel.y = -this.vel.y;
+    } else if (this.pos.y + this.r >= height) {
+      this.pos.y = height - this.r;
+      this.vel.y = -this.vel.y;
     }
   }
 }

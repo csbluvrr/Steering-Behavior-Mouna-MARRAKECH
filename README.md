@@ -5,7 +5,7 @@ Ce projet rassemble une suite d'applications, d'exercices et de simulations inte
 L'article original est consultable dans le dossier :
 `article craig reynolds/Steering Behaviors For Autonomous Characters.pdf`
 
-<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 09:29:42 UTC* <!-- END:LAST_UPDATED -->
+<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 09:36:41 UTC* <!-- END:LAST_UPDATED -->
 
 ---
 
@@ -40,7 +40,7 @@ Ce tableau est **automatiquement synchronisé** à chaque modification ou ajout 
 | Module / Application | Type | Classes Détectées | Comportements Détectés | Lien Direct |
 |---|---|---|---|---|
 | **1-Seek** | Exercice / Démo | `ComicBoom, Particle, Target, Vehicle` | `flee, seek` | [1-Seek](./1-Seek/index.html) |
-| **2-PursueEvade** | Exercice / Démo | `BouncingBall, Target, Vehicle` | `pursue, evade, seek, flee` | [2-PursueEvade](./2-PursueEvade/index.html) |
+| **2-PursueEvade** | Exercice / Démo | `BouncingBall, ComicBoom, Particle, Target, Vehicle` | `pursue, evade, seek, flee` | [2-PursueEvade](./2-PursueEvade/index.html) |
 | **2-PursueEvade_correction** | Correction / Avancé | `BouncingBall, Target, Vehicle` | `pursue, evade, seek, flee` | [2-PursueEvade_correction](./2-PursueEvade_correction/index.html) |
 | **3-Arrival** | Exercice / Démo | `Snake, Target, Vehicle` | `arrive, seek, flee, pursue, evade, wander` | [3-Arrival](./3-Arrival/index.html) |
 | **3-Arrival_correction** | Correction / Avancé | `Snake, SnakeWander, Vehicle, Target` | `arrive, wander, seek, flee, pursue, evade` | [3-Arrival_correction](./3-Arrival_correction/index.html) |

@@ -1,40 +1,81 @@
 class Target extends Vehicle {
-  constructor(x, y, image = null) {
-    super(x, y, image);
-    this.vel = p5.Vector.random2D();
-    this.vel.mult(4);
-    this.maxSpeed = 5;
-    this.maxForce = 0.3;
+  constructor(x, y, normalSprite = null, evadingSprite = null) {
+    super(x, y);
 
-    // Rayon de détection à partir duquel la cible commence à fuir
-    this.rayonDetection = 160;
-    this.r = 25;
+    this.vel = p5.Vector.random2D().mult(random(3, 5));
+    this.maxSpeed = 6;
+    this.maxForce = 0.4;
+    this.r = 38;
+
+    // Sprites pour la machine à états
+    this.normalSprite = normalSprite;
+    this.evadingSprite = evadingSprite || normalSprite;
+    this.isEvading = false;
+
+    // Champ de vision (rayon de détection de fuite)
+    this.champDeVision = 180;
+  }
+
+  update() {
+    this.vel.add(this.acc);
+    this.vel.limit(this.maxSpeed);
+    this.pos.add(this.vel);
+    this.acc.set(0, 0);
+
+    // Les cibles réapparaissent de l'autre côté de l'écran quand elles en sortent
+    this.edges();
   }
 
   show() {
-    push();
+    // 1. Cercle du champ de vision en mode debug (orange si menacé, jaune doux sinon)
     if (Vehicle.debug) {
-      // Cercle représentant la zone de détection
+      push();
       noFill();
-      stroke(255, 255, 255, 80);
-      strokeWeight(1);
-      circle(this.pos.x, this.pos.y, this.rayonDetection * 2);
+      stroke(this.isEvading ? "rgba(255, 140, 0, 0.85)" : "rgba(255, 230, 0, 0.35)");
+      strokeWeight(this.isEvading ? 2 : 1);
+      circle(this.pos.x, this.pos.y, this.champDeVision * 2);
+      pop();
     }
 
-    if (this.image) {
+    // 2. Sélection dynamique du sprite
+    let activeSprite = this.isEvading ? this.evadingSprite : this.normalSprite;
+
+    if (activeSprite) {
+      push();
       translate(this.pos.x, this.pos.y);
       imageMode(CENTER);
       if (this.vel.x < 0) {
         scale(-1, 1);
       }
-      image(this.image, 0, 0, this.r * 2, this.r * 2);
+      image(activeSprite, 0, 0, this.r * 2, this.r * 2);
+      pop();
     } else {
-      stroke("white");
+      push();
+      stroke(255);
       strokeWeight(2);
-      fill("pink");
+      fill(this.isEvading ? "orange" : "pink");
       translate(this.pos.x, this.pos.y);
       circle(0, 0, this.r * 2);
+      pop();
     }
-    pop();
+
+    // 3. Vecteur vitesse de la cible en cyan si debug activé
+    if (Vehicle.debug) {
+      this.drawVector(this.pos, this.vel, "cyan", 6);
+    }
+  }
+
+  // Les cibles réapparaissent de l'autre côté du canvas (boucle torique)
+  edges() {
+    if (this.pos.x > width + this.r) {
+      this.pos.x = -this.r;
+    } else if (this.pos.x < -this.r) {
+      this.pos.x = width + this.r;
+    }
+    if (this.pos.y > height + this.r) {
+      this.pos.y = -this.r;
+    } else if (this.pos.y < -this.r) {
+      this.pos.y = height + this.r;
+    }
   }
 }

@@ -101,10 +101,17 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - Le Scorbunny touché disparaît et réapparaît instantanément à une position aléatoire avec une nouvelle vitesse (`respawn()`).
   - Interface complète avec deux rangées de curseurs (Gengars & Scorbunnies), case à cocher debug avec touche <kbd>D</kbd>, et fond d'écran `seekbackground.jpg`.
 - **Module 2-PursueEvade** :
-  - Implémentation complète des comportements de pilotage prédictif de Craig Reynolds : `pursue(target)` et `evade(target)` basés sur l'anticipation temporelle $\Delta t = \text{dist} / v_{\text{max}}$.
-  - Intégration des sprites Pokémon agrandis et de l'arrière-plan `seekbackground.jpg` : Gengar en poursuiveur autonome, Scorbunnies en cibles bondissantes (`BouncingBall extends Target extends Vehicle`).
-  - Zone de détection interactive (`rayonDetection`) : les Scorbunnies fuient avec prédiction dès que Gengar approche.
-  - Détection de capture : repositionnement aléatoire lors de l'interception.
-  - Interface complète avec 4 sliders (vitesses, forces, rayon de détection) et case à cocher pour visualiser les points d'interception futurs (vert = visée de poursuite, orange = anticipation de fuite).
-  - Contrôle interactif : clic gauche pour téléporter Gengar, <kbd>Shift</kbd> + clic pour ajouter des Scorbunnies supplémentaires.
+  - Implémentation du jeu complet du chat et de la souris avec **Gengar (Seeker/Pursuer)** et **Scorbunny (Evader/Target)**.
+  - **Machine à états de sprites dynamiques (`ressources 2/`)** :
+    - Mode Normal (hors de portée) : `gengar normal.png` et `scorbunny normal.png`.
+    - Mode Chasse (dans le champ de vision) : `gengar seeking.png` pour Gengar.
+    - Mode Alerte/Évasion (dans le champ de vision) : `scorbunny evading.png` pour Scorbunny.
+  - **Comportements de pilotage de Reynolds** :
+    - `pursue(target, predictionFrames)` : vise le point futur anticipé $\vec{p} + \vec{v} \times T$.
+    - `evade(threat, predictionFrames)` : fuit le point futur anticipé en inversant la vitesse désirée (et non simplement la force).
+  - **Gestion des bords asymétrique** : Scorbunny réapparaît du côté opposé (`edges()`), tandis que Gengar reste confiné dans l'arène (`bounceEdges()`).
+  - **Capture, Explosion et Game Over** :
+    - Dès que Gengar intercepte Scorbunny, une explosion de 40 particules (`Particle extends Vehicle`), une onomatopée comics (*BOOM !*, *GOTCHA !*) (`ComicBoom extends Vehicle`) et un son pop se déclenchent.
+    - Écran de Game Over avec compte à rebours de 3 secondes avant redémarrage automatique ou relance immédiate via <kbd>ESPACE</kbd> / Clic.
+  - **Panneau de contrôle complet** : 6 curseurs (vitesses, forces max, prédiction de 2 à 30 frames, champ de vision) et bascule debug via <kbd>D</kbd>.
 - **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).
