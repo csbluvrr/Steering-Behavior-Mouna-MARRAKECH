@@ -6,8 +6,8 @@ class Snake extends Vehicle {
     this.bodySprite = bodySprite;
     this.tailSprite = tailSprite;
 
-    this.headRadius = 40;
-    this.bodyRadius = 30;
+    this.headRadius = 32;
+    this.bodyRadius = 24;
 
     // Mode de contrôle : 'KEYBOARD' (par défaut, flèches) ou 'MOUSE'
     this.controlMode = 'KEYBOARD';
@@ -21,7 +21,7 @@ class Snake extends Vehicle {
 
     // Anneaux rocheux d'Onix (SnakeSegment extends Vehicle)
     this.anneaux = [];
-    this.construireCorps(x, y, initialLength, 22);
+    this.construireCorps(x, y, initialLength, 18);
   }
 
   construireCorps(x, y, length, spacing = 22) {

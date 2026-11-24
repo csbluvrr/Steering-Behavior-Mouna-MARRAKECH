@@ -5,7 +5,7 @@ class Target extends Vehicle {
     this.vel = p5.Vector.random2D().mult(random(3, 5));
     this.maxSpeed = 5;
     this.maxForce = 0.45;
-    this.r = 45;
+    this.r = 35;
 
     // Sprites pour la machine à états de Scorbunny
     this.normalSprite = normalSprite;
@@ -13,12 +13,12 @@ class Target extends Vehicle {
     this.isEvading = false;
 
     // Champ de vision (rayon de détection de fuite)
-    this.champDeVision = 200;
+    this.champDeVision = 180;
 
-    // Paramètres d'exclusion et d'évitement des 4 coins de l'écran
-    this.cornerAvoidDistance = 220; // Rayon de détection et répulsion anticipée
-    this.cornerSafetyRadius = 120;  // Rayon absolu d'interdiction (impossible à toucher)
-    this.wallMargin = 60;          // Marge de sécurité par rapport aux parois droites
+    // Paramètres d'exclusion et d'évitement des 4 coins de l'écran de la console
+    this.cornerAvoidDistance = 175; // Rayon de détection et répulsion anticipée
+    this.cornerSafetyRadius = 95;   // Rayon absolu d'interdiction (impossible à toucher)
+    this.wallMargin = 48;           // Marge de sécurité par rapport aux parois droites
   }
 
   // Évasion prédictive (Craig Reynolds)

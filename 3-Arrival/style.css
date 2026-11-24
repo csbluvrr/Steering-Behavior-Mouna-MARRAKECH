@@ -1,14 +1,54 @@
 html, body {
   margin: 0;
   padding: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
-  background: #0a0c16 url('../ressources/background.gif') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #b794f4 0%, #805ad5 55%, #553c9a 100%);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   user-select: none;
 }
 
-canvas {
+/* Scène principale conservant exactement le ratio 1672x941 de l'illustration Switch */
+#switch-stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 1672 / 941));
+  height: min(100vh, calc(100vw * 941 / 1672));
+  flex-shrink: 0;
+  box-shadow: 0 20px 60px rgba(30, 12, 60, 0.45);
+}
+
+/* Zone d'écran de la console (alignée exactement sur l'écran vert découpé) */
+#game-screen-slot {
+  position: absolute;
+  left: 19.14%;
+  top: 19.23%;
+  width: 62.32%;
+  height: 63.76%;
+  overflow: hidden;
+  z-index: 1;
+  background: #0a0c16 url('../ressources/background.gif') center/cover no-repeat;
+}
+
+#game-screen-slot canvas {
   display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Cadre de la console Switch transparent au centre, posé par-dessus les bords du canvas */
+#switch-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 /* Scrollbar fine et discrète pour le menu burger */

@@ -52,8 +52,18 @@ function preload() {
   bgImg = loadImage('../ressources/background.gif', () => {}, onErr('background.gif'));
 }
 
+function getSwitchScreenSize() {
+  let slot = document.getElementById('game-screen-slot');
+  if (slot && slot.clientWidth > 50 && slot.clientHeight > 50) {
+    return { w: Math.round(slot.clientWidth), h: Math.round(slot.clientHeight) };
+  }
+  return { w: Math.round(windowWidth * 0.62), h: Math.round(windowHeight * 0.63) };
+}
+
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  let size = getSwitchScreenSize();
+  let cnv = createCanvas(size.w, size.h);
+  cnv.parent('game-screen-slot');
 
   if (bgImg && typeof bgImg.play === 'function') {
     bgImg.play();
@@ -175,8 +185,8 @@ function creerInterfaceUtilisateur() {
   slowingRadiusSlider.style('vertical-align', 'middle');
 
   let gSp = createDiv(); gSp.parent(r1);
-  labelSpacing = createSpan('Écart Anneaux : 22px '); labelSpacing.parent(gSp);
-  spacingSlider = createSlider(12, 45, 22, 1); spacingSlider.parent(gSp);
+  labelSpacing = createSpan('Écart Anneaux : 18px '); labelSpacing.parent(gSp);
+  spacingSlider = createSlider(10, 40, 18, 1); spacingSlider.parent(gSp);
   spacingSlider.style('vertical-align', 'middle');
 
   let gL = createDiv(); gL.parent(r1);
@@ -290,10 +300,10 @@ function mettreAJourBoutonMusique(isPlaying) {
   }
 }
 
-// Calcule une position d'apparition sûre éloignée des coins et des murs mortels
+// Calcule une position d'apparition sûre éloignée des coins et des murs mortels de la Switch
 function positionSureScorbunny() {
-  let margin = 120;
-  let safeCornerDist = 200;
+  let margin = Math.min(85, width * 0.14, height * 0.18);
+  let safeCornerDist = Math.min(165, Math.min(width, height) * 0.30);
   let corners = [
     createVector(0, 0),
     createVector(width, 0),
@@ -315,7 +325,7 @@ function positionSureScorbunny() {
       return createVector(x, y);
     }
   }
-  return createVector(width / 2 + random(-100, 100), height / 2 + random(-100, 100));
+  return createVector(width / 2 + random(-80, 80), height / 2 + random(-60, 60));
 }
 
 function reinitialiserJeu() {
@@ -383,7 +393,7 @@ function draw() {
     stroke(251, 146, 60, 180);
     strokeWeight(2);
     drawingContext.setLineDash([5, 5]);
-    let safeR = 120 * 2;
+    let safeR = 95 * 2;
     arc(0, 0, safeR, safeR, 0, HALF_PI);
     arc(width, 0, safeR, safeR, HALF_PI, PI);
     arc(0, height, safeR, safeR, -HALF_PI, 0);
@@ -464,10 +474,10 @@ function draw() {
       }
 
       // Répulsion active et anticipée des 4 coins et des murs (interdit tout contact avec les coins)
-      let cornerForce = scorbunny.avoidCorners(220);
+      let cornerForce = scorbunny.avoidCorners(175);
       scorbunny.applyForce(cornerForce);
 
-      let wallForce = scorbunny.avoidWalls(75);
+      let wallForce = scorbunny.avoidWalls(60);
       scorbunny.applyForce(wallForce);
 
       scorbunny.update();
@@ -588,6 +598,8 @@ function dessinerEcranGameOver() {
   fill(0, 0, 0, 185);
   rect(0, 0, width, height);
 
+  let s = constrain(width / 900, 0.55, 1.15);
+
   textAlign(CENTER, CENTER);
   textFont('Impact, "Arial Black", sans-serif');
 
@@ -596,40 +608,40 @@ function dessinerEcranGameOver() {
   if (isVictory) {
     fill("#38bdf8");
     stroke(0);
-    strokeWeight(7);
-    textSize(60);
-    text("MIAM ! VICTOIRE !", width / 2, height / 2 - 50);
+    strokeWeight(6 * s);
+    textSize(56 * s);
+    text("MIAM ! VICTOIRE !", width / 2, height / 2 - 48 * s);
 
     fill("#facc15");
     stroke(0);
-    strokeWeight(4);
-    textSize(26);
+    strokeWeight(3.5 * s);
+    textSize(24 * s);
     let totalAnneaux = onyx.anneaux.length + 1;
-    text("Onix a tout dévoré et mesure " + totalAnneaux + " anneaux rocheux !", width / 2, height / 2 + 10);
+    text("Onix a tout dévoré et mesure " + totalAnneaux + " anneaux rocheux !", width / 2, height / 2 + 10 * s);
   } else {
     fill("#ef4444");
     stroke(0);
-    strokeWeight(7);
-    textSize(60);
-    text("GAME OVER !", width / 2, height / 2 - 50);
+    strokeWeight(6 * s);
+    textSize(56 * s);
+    text("GAME OVER !", width / 2, height / 2 - 48 * s);
 
     fill("#facc15");
     stroke(0);
-    strokeWeight(4);
-    textSize(26);
-    text(gameOverReason, width / 2, height / 2 + 10);
+    strokeWeight(3.5 * s);
+    textSize(24 * s);
+    text(gameOverReason, width / 2, height / 2 + 10 * s);
   }
 
   fill("#ffffff");
   noStroke();
   textFont('system-ui, sans-serif');
-  textSize(18);
-  text("💥 Scorbunnies dévorés : " + scoreMiam, width / 2, height / 2 + 50);
+  textSize(17 * s);
+  text("💥 Scorbunnies dévorés : " + scoreMiam, width / 2, height / 2 + 48 * s);
 
   let secondesRestantes = Math.ceil(gameOverTimer / 60);
   fill("#94a3b8");
-  textSize(15);
-  text("Nouvelle manche dans " + secondesRestantes + "s... (ou appuyez sur ESPACE)", width / 2, height / 2 + 85);
+  textSize(14 * s);
+  text("Nouvelle manche dans " + secondesRestantes + "s... (ou appuyez sur ESPACE)", width / 2, height / 2 + 80 * s);
   pop();
 }
 
@@ -700,5 +712,16 @@ function mousePressed() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  let size = getSwitchScreenSize();
+  resizeCanvas(size.w, size.h);
+
+  // Recadrer les entités à l'intérieur du nouvel écran Switch si la fenêtre rétrécit
+  if (onyx && onyx.head) {
+    onyx.head.pos.x = constrain(onyx.head.pos.x, 40, width - 40);
+    onyx.head.pos.y = constrain(onyx.head.pos.y, 40, height - 40);
+  }
+  for (let s of scorbunnies) {
+    s.pos.x = constrain(s.pos.x, 50, width - 50);
+    s.pos.y = constrain(s.pos.y, 50, height - 50);
+  }
 }

@@ -145,6 +145,10 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
       - **Collision avec les Murs** : Franchir les limites de l'écran provoque un crash fatal (`checkWallCollision()`) avec son de choc rocheux (`playCrashSound()`) et Game Over.
       - **Auto-Collision** : Toucher son propre corps rocheux (à partir du 4ème anneau) est mortel (`checkSelfCollision()`).
       - **Bordure visuelle de danger** : Cadre néon rouge d'avertissement autour de l'arène.
+    - **Intégration Console Portable Nintendo Switch (`switch_frame.png`)** :
+      - Découpage propre avec transparence et anti-aliasing de l'écran vert de `ressources/switch background.png` vers `ressources/switch_frame.png`.
+      - Le canvas p5.js est monté dans `#game-screen-slot` (aligné au pixel près sur l'ouverture de l'écran) sous la couche transparente `#switch-overlay` (`pointer-events: none`), donnant l'illusion parfaite que le jeu tourne sur l'écran de la console.
+      - Redimensionnement réactif (`windowResized`) conservant le ratio `1672x941`, rayons des entités et textes de Game Over adaptés aux dimensions de l'écran portable.
     - **Protection & Évitement des Coins pour Scorbunny** :
       - **Interdiction de toucher les coins de l'écran** : Les Scorbunnies sont dotés d'un comportement d'évitement actif (`avoidCorners`) repoussant les 4 angles morts de l'écran (`detectionRadius = 220px`).
       - **Barrière physique infranchissable (`containAndBounce`)** : Rayon d'exclusion absolu de 120 px aux 4 coins avec projection et réflexion de la vitesse, interdisant physiquement tout contact avec les coins.
