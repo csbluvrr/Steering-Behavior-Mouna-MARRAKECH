@@ -24,10 +24,10 @@ html, body {
 /* Zone d'écran de la console (alignée exactement sur l'écran vert découpé) */
 #game-screen-slot {
   position: absolute;
-  left: 19.80%;
-  top: 22.85%;
-  width: 61.06%;
-  height: 58.13%;
+  left: 20.10%;
+  top: 25.29%;
+  width: 59.69%;
+  height: 54.94%;
   overflow: hidden;
   z-index: 1;
   background: #0a0c16 url('../ressources/background.gif') center/cover no-repeat;
