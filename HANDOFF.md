@@ -119,7 +119,7 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - **Vitesses découplées** : Sliders dédiés pour la **vitesse normale** (croisière passive) et la **vitesse d'accélération** (poursuite active pour Gengar, évasion pour Scorbunny).
     - **Déplacement passif fluide** : Gengar et Scorbunny patrouillent en permanence sur le canvas sans temps d'arrêt.
     - **Sprites agrandis** : Dimensions accrues ($r=65$ pour Gengar, $r=55$ pour Scorbunny) pour une lisibilité et un impact visuel maximum.
-    - **Respawn & Score dynamique** : Lorsqu'un Scorbunny est capturé, il explose puis réapparaît instantanément à un point aléatoire éloigné des Gengars (`respawn()`), avec incrémentation du compteur de captures en direct.
+    - **Destruction permanente & Game Over** : Chaque Scorbunny capturé par un Gengar explose et est définitivement détruit de la manche. Lorsque **tous les Scorbunnies sont détruits** (`scorbunnies.length === 0`), l'écran de **Game Over** apparaît avec le score total, un compte à rebours de 4 secondes ou une relance instantanée via la touche <kbd>ESPACE</kbd> / clic. L'IHM affiche le compteur en direct : `🐰 Scorbunnies : X / Total | 💥 Détruits : Y`.
   - **Décors & Ambiance Vaisseaux Spatiaux** :
     - Image d'arrière-plan haute définition `background 2.jpg` intégrée.
     - **Traînées de réacteurs (`TrailParticle extends Vehicle`)** : Émission de particules de plasma fluide à l'arrière des vaisseaux (traînée spectrale violette pour Gengar, traînée solaire jaune électrique pour Scorbunny, avec surcroît de poussée lors des phases de poursuite/fuite).
