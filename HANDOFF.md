@@ -114,8 +114,18 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - `pursue(target, predictionFrames)` : vise le point futur anticipé $\vec{p} + \vec{v} \times T$.
     - `evade(threat, predictionFrames)` : fuit le point futur anticipé en inversant la vitesse désirée (et non simplement la force).
   - **Gestion des bords asymétrique** : Scorbunny réapparaît du côté opposé (`edges()`), tandis que Gengar reste confiné dans l'arène (`bounceEdges()`).
+  - **Décors & Ambiance Vaisseaux Spatiaux** :
+    - Image d'arrière-plan haute définition `background 2.jpg` intégrée.
+    - **Traînées de réacteurs (`TrailParticle extends Vehicle`)** : Émission de particules de plasma fluide à l'arrière des vaisseaux (traînée spectrale violette pour Gengar, traînée solaire jaune électrique pour Scorbunny, avec surcroît de poussée lors des phases de poursuite/fuite).
+  - **Système Audio Synthétique Chiptune & FX (`GameAudio`)** :
+    - **Musique de fond rétro-synthétique (BGM)** générée procéduralement en temps réel via Web Audio API (boucle chiptune en Ré mineur avec basse triangulaire, arpèges cosmiques carrés et percussions rétro), avec bouton marche/arrêt et curseur de volume dédié.
+    - **Son de panique cartoon** : Double pépiement aigu affolé déclenché instantanément dès que Scorbunny détecte Gengar dans son champ de vision.
+    - **Son d'explosion comics multicouche** : Impact sub-bass percutant + blast de bruit filtré + pop cartoon lors de la capture.
+  - **Effets Spéciaux & Juice Comics** :
+    - Écran de secousse dynamique (*Screen Shake*) à l'impact.
+    - Étoile d'explosion comics enrichie ([comicBoom.js](2-PursueEvade/comicBoom.js)) avec double dentelure colorée, rayons d'impact comiques et rebond pop-in.
   - **Capture, Explosion et Game Over** :
-    - Dès que Gengar intercepte Scorbunny, une explosion de 40 particules (`Particle extends Vehicle`), une onomatopée comics (*BOOM !*, *GOTCHA !*) (`ComicBoom extends Vehicle`) et un son pop se déclenchent.
+    - Dès que Gengar intercepte Scorbunny, une explosion de 45 particules (`Particle extends Vehicle`), une onomatopée comics (*KABOOM !*, *GOTCHA !*, *BAM !*) et le son percutant se déclenchent.
     - Écran de Game Over avec compte à rebours de 3 secondes avant redémarrage automatique ou relance immédiate via <kbd>ESPACE</kbd> / Clic.
-  - **Panneau de contrôle complet** : 6 curseurs (vitesses, forces max, prédiction de 2 à 30 frames, champ de vision) et bascule debug via <kbd>D</kbd>.
+  - **Panneau de contrôle complet** : Sliders vitesses/forces, durée de prédiction, champ de vision, volume audio, bouton BGM et bascule debug via <kbd>D</kbd>.
 - **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).
