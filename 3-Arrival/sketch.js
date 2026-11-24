@@ -75,203 +75,154 @@ function setup() {
 }
 
 function creerInterfaceUtilisateur() {
-  // 1. Barre supérieure fixe
+  // 1. Barre supérieure fixe (Style Nintendo Switch Kawaii)
   topBarContainer = createDiv();
-  topBarContainer.position(15, 12);
-  topBarContainer.style('display', 'flex');
-  topBarContainer.style('align-items', 'center');
-  topBarContainer.style('gap', '10px');
-  topBarContainer.style('z-index', '1000');
+  topBarContainer.addClass('switch-topbar');
 
   burgerBtn = createButton('☰ Paramètres');
   burgerBtn.parent(topBarContainer);
-  burgerBtn.style('background', 'rgba(15, 18, 34, 0.88)');
-  burgerBtn.style('color', '#ffffff');
-  burgerBtn.style('border', '1px solid rgba(148, 163, 184, 0.45)');
-  burgerBtn.style('padding', '7px 14px');
-  burgerBtn.style('border-radius', '10px');
-  burgerBtn.style('cursor', 'pointer');
-  burgerBtn.style('font-family', 'system-ui, sans-serif');
-  burgerBtn.style('font-size', '13px');
-  burgerBtn.style('font-weight', '600');
-  burgerBtn.style('backdrop-filter', 'blur(8px)');
-  burgerBtn.style('box-shadow', '0 4px 14px rgba(0, 0, 0, 0.5)');
+  burgerBtn.addClass('switch-burger-btn');
   burgerBtn.mousePressed(basculerMenuBurger);
 
   statusPill = createDiv();
   statusPill.parent(topBarContainer);
-  statusPill.style('background', 'rgba(15, 18, 34, 0.85)');
-  statusPill.style('backdrop-filter', 'blur(8px)');
-  statusPill.style('border', '1px solid rgba(255, 255, 255, 0.18)');
-  statusPill.style('padding', '7px 14px');
-  statusPill.style('border-radius', '10px');
-  statusPill.style('color', 'white');
-  statusPill.style('font-family', 'system-ui, sans-serif');
-  statusPill.style('font-size', '12px');
-  statusPill.style('box-shadow', '0 4px 14px rgba(0, 0, 0, 0.4)');
+  statusPill.addClass('switch-status-pill');
 
   // 2. Panneau déroulant du menu burger
   uiContainer = createDiv();
   uiContainer.addClass('burger-menu-panel');
-  uiContainer.position(15, 54);
-  uiContainer.style('display', 'none');
-  uiContainer.style('flex-direction', 'column');
-  uiContainer.style('gap', '10px');
-  uiContainer.style('width', '470px');
-  uiContainer.style('max-width', '92vw');
-  uiContainer.style('max-height', 'calc(100vh - 75px)');
-  uiContainer.style('overflow-y', 'auto');
-  uiContainer.style('background', 'rgba(10, 12, 24, 0.95)');
-  uiContainer.style('backdrop-filter', 'blur(14px)');
-  uiContainer.style('padding', '14px 18px');
-  uiContainer.style('border-radius', '14px');
-  uiContainer.style('border', '1px solid rgba(148, 163, 184, 0.35)');
-  uiContainer.style('box-shadow', '0 12px 36px rgba(0, 0, 0, 0.75)');
-  uiContainer.style('color', 'white');
-  uiContainer.style('font-family', 'system-ui, sans-serif');
-  uiContainer.style('font-size', '12px');
-  uiContainer.style('z-index', '999');
 
   // En-tête
-  let headerMenu = createDiv('<b>⚙️ Snake Classique : Onix & Scorbunnies</b>'); headerMenu.parent(uiContainer);
-  headerMenu.style('color', '#94a3b8'); headerMenu.style('font-size', '13px'); headerMenu.style('border-bottom', '1px solid rgba(255, 255, 255, 0.15)'); headerMenu.style('padding-bottom', '6px');
+  let headerMenu = createDiv('<span>🎮 Onix Snake & Scorbunnies</span><span style="font-size:12px;color:#9333ea;">★ Switch Edition</span>');
+  headerMenu.parent(uiContainer);
+  headerMenu.addClass('switch-menu-header');
 
   // SECTION 1 : Onix (Snake, Flèches & Anneaux soudés)
-  let sec1 = createDiv(); sec1.parent(uiContainer);
-  sec1.style('background', 'rgba(148, 163, 184, 0.08)'); sec1.style('padding', '8px 12px'); sec1.style('border-radius', '8px'); sec1.style('border', '1px solid rgba(148, 163, 184, 0.2)');
+  let sec1 = createDiv();
+  sec1.parent(uiContainer);
+  sec1.addClass('switch-section switch-section-onix');
 
-  let t1 = createDiv('<b>🐍 ONYX (Contrôles & Physique) :</b>'); t1.parent(sec1);
-  t1.style('color', '#94a3b8'); t1.style('margin-bottom', '6px');
+  let t1 = createDiv('🐍 ONIX — Contrôles & Physique');
+  t1.parent(sec1);
+  t1.addClass('switch-section-title');
 
-  let rMode = createDiv(); rMode.parent(sec1);
+  let rMode = createDiv();
+  rMode.parent(sec1);
   rMode.style('margin-bottom', '8px');
   controlModeBtn = createButton('🕹️ Contrôle : FLÈCHES CLAVIER');
   controlModeBtn.parent(rMode);
-  controlModeBtn.style('background', '#2563eb');
-  controlModeBtn.style('color', 'white');
-  controlModeBtn.style('border', 'none');
-  controlModeBtn.style('padding', '4px 12px');
-  controlModeBtn.style('border-radius', '6px');
-  controlModeBtn.style('cursor', 'pointer');
-  controlModeBtn.style('font-weight', 'bold');
+  controlModeBtn.addClass('switch-action-btn switch-btn-blue');
   controlModeBtn.mousePressed(() => {
     if (onyx.controlMode === 'KEYBOARD') {
       onyx.controlMode = 'MOUSE';
       controlModeBtn.html('🖱️ Contrôle : SOURIS (Arrival)');
-      controlModeBtn.style('background', '#7c3aed');
+      controlModeBtn.removeClass('switch-btn-blue');
+      controlModeBtn.addClass('switch-btn-purple');
     } else {
       onyx.controlMode = 'KEYBOARD';
       controlModeBtn.html('🕹️ Contrôle : FLÈCHES CLAVIER');
-      controlModeBtn.style('background', '#2563eb');
+      controlModeBtn.removeClass('switch-btn-purple');
+      controlModeBtn.addClass('switch-btn-blue');
     }
   });
 
-  let r1 = createDiv(); r1.parent(sec1);
-  r1.style('display', 'flex'); r1.style('flex-wrap', 'wrap'); r1.style('gap', '12px');
+  let r1 = createDiv();
+  r1.parent(sec1);
+  r1.addClass('switch-controls-row');
 
-  let gV = createDiv(); gV.parent(r1);
-  labelVitesseOnix = createSpan('Vitesse Max : 7 '); labelVitesseOnix.parent(gV);
+  let gV = createDiv(); gV.parent(r1); gV.addClass('switch-slider-item');
+  labelVitesseOnix = createSpan('Vitesse Max : 7'); labelVitesseOnix.parent(gV);
   vitesseOnixSlider = createSlider(2, 20, 7, 1); vitesseOnixSlider.parent(gV);
-  vitesseOnixSlider.style('vertical-align', 'middle');
 
-  let gF = createDiv(); gF.parent(r1);
-  labelForceOnix = createSpan('Force Max : 0.45 '); labelForceOnix.parent(gF);
+  let gF = createDiv(); gF.parent(r1); gF.addClass('switch-slider-item');
+  labelForceOnix = createSpan('Force Max : 0.45'); labelForceOnix.parent(gF);
   forceOnixSlider = createSlider(0.05, 1.5, 0.45, 0.01); forceOnixSlider.parent(gF);
-  forceOnixSlider.style('vertical-align', 'middle');
 
-  let gS = createDiv(); gS.parent(r1);
-  labelSlowingRadius = createSpan('Rayon Freinage : 140px '); labelSlowingRadius.parent(gS);
+  let gS = createDiv(); gS.parent(r1); gS.addClass('switch-slider-item');
+  labelSlowingRadius = createSpan('Freinage : 140px'); labelSlowingRadius.parent(gS);
   slowingRadiusSlider = createSlider(30, 400, 140, 10); slowingRadiusSlider.parent(gS);
-  slowingRadiusSlider.style('vertical-align', 'middle');
 
-  let gSp = createDiv(); gSp.parent(r1);
-  labelSpacing = createSpan('Écart Anneaux : 18px '); labelSpacing.parent(gSp);
+  let gSp = createDiv(); gSp.parent(r1); gSp.addClass('switch-slider-item');
+  labelSpacing = createSpan('Écart Anneaux : 18px'); labelSpacing.parent(gSp);
   spacingSlider = createSlider(10, 40, 18, 1); spacingSlider.parent(gSp);
-  spacingSlider.style('vertical-align', 'middle');
 
-  let gL = createDiv(); gL.parent(r1);
-  labelLongueurOnix = createSpan('Longueur Initiale : 8 '); labelLongueurOnix.parent(gL);
+  let gL = createDiv(); gL.parent(r1); gL.addClass('switch-slider-item');
+  labelLongueurOnix = createSpan('Longueur : 8'); labelLongueurOnix.parent(gL);
   longueurOnixSlider = createSlider(3, 25, 8, 1); longueurOnixSlider.parent(gL);
-  longueurOnixSlider.style('vertical-align', 'middle');
   longueurOnixSlider.changed(reinitialiserJeu);
 
   // SECTION 2 : Scorbunny (Evader)
-  let sec2 = createDiv(); sec2.parent(uiContainer);
-  sec2.style('background', 'rgba(251, 146, 60, 0.08)'); sec2.style('padding', '8px 12px'); sec2.style('border-radius', '8px'); sec2.style('border', '1px solid rgba(251, 146, 60, 0.2)');
+  let sec2 = createDiv();
+  sec2.parent(uiContainer);
+  sec2.addClass('switch-section switch-section-scorbunny');
 
-  let t2 = createDiv('<b>🐰 SCORBUNNY (Cibles fuyantes) :</b>'); t2.parent(sec2);
-  t2.style('color', '#fb923c'); t2.style('margin-bottom', '6px');
+  let t2 = createDiv('🐰 SCORBUNNY — Cibles Fuyantes');
+  t2.parent(sec2);
+  t2.addClass('switch-section-title');
 
-  let r2 = createDiv(); r2.parent(sec2);
-  r2.style('display', 'flex'); r2.style('flex-wrap', 'wrap'); r2.style('gap', '12px');
+  let r2 = createDiv();
+  r2.parent(sec2);
+  r2.addClass('switch-controls-row');
 
-  let sNb = createDiv(); sNb.parent(r2);
-  labelNbScorbunnies = createSpan('Nombre : 5 '); labelNbScorbunnies.parent(sNb);
+  let sNb = createDiv(); sNb.parent(r2); sNb.addClass('switch-slider-item');
+  labelNbScorbunnies = createSpan('Nombre : 5'); labelNbScorbunnies.parent(sNb);
   nbScorbunniesSlider = createSlider(1, 20, 5, 1); nbScorbunniesSlider.parent(sNb);
-  nbScorbunniesSlider.style('vertical-align', 'middle');
   nbScorbunniesSlider.input(ajusterScorbunnies);
 
-  let sNorm = createDiv(); sNorm.parent(r2);
-  labelVitesseNormaleScorbunny = createSpan('Vit. Normale : 4 '); labelVitesseNormaleScorbunny.parent(sNorm);
+  let sNorm = createDiv(); sNorm.parent(r2); sNorm.addClass('switch-slider-item');
+  labelVitesseNormaleScorbunny = createSpan('Vit. Normale : 4'); labelVitesseNormaleScorbunny.parent(sNorm);
   vitesseNormaleScorbunnySlider = createSlider(1, 15, 4, 1); vitesseNormaleScorbunnySlider.parent(sNorm);
-  vitesseNormaleScorbunnySlider.style('vertical-align', 'middle');
 
-  let sEvade = createDiv(); sEvade.parent(r2);
-  labelVitesseEvadingScorbunny = createSpan('Vit. Évasion : 7 '); labelVitesseEvadingScorbunny.parent(sEvade);
+  let sEvade = createDiv(); sEvade.parent(r2); sEvade.addClass('switch-slider-item');
+  labelVitesseEvadingScorbunny = createSpan('Vit. Évasion : 7'); labelVitesseEvadingScorbunny.parent(sEvade);
   vitesseEvadingScorbunnySlider = createSlider(2, 25, 7, 1); vitesseEvadingScorbunnySlider.parent(sEvade);
-  vitesseEvadingScorbunnySlider.style('vertical-align', 'middle');
 
-  let sVision = createDiv(); sVision.parent(r2);
-  labelChampVision = createSpan('Champ de Vision : 200px '); labelChampVision.parent(sVision);
+  let sVision = createDiv(); sVision.parent(r2); sVision.addClass('switch-slider-item');
+  labelChampVision = createSpan('Vision : 200px'); labelChampVision.parent(sVision);
   champVisionSlider = createSlider(50, 450, 200, 10); champVisionSlider.parent(sVision);
-  champVisionSlider.style('vertical-align', 'middle');
 
   // SECTION 3 : Débogage & Règles
-  let sec3 = createDiv(); sec3.parent(uiContainer);
-  sec3.style('background', 'rgba(0, 255, 136, 0.06)'); sec3.style('padding', '8px 12px'); sec3.style('border-radius', '8px'); sec3.style('border', '1px solid rgba(0, 255, 136, 0.2)');
+  let sec3 = createDiv();
+  sec3.parent(uiContainer);
+  sec3.addClass('switch-section switch-section-debug');
 
-  debugCheckbox = createCheckbox(' Mode Débogage (Zones de freinage, vision, forces) [D]', false);
+  debugCheckbox = createCheckbox(' Mode Débogage (Freinage, vision, coins, forces) [D]', false);
   debugCheckbox.parent(sec3);
   debugCheckbox.style('cursor', 'pointer');
-  debugCheckbox.style('accent-color', '#00ff88');
+  debugCheckbox.style('font-weight', '600');
   debugCheckbox.changed(() => {
     Vehicle.debug = debugCheckbox.checked();
   });
 
-  let rulesInfo = createDiv('<small style="color:#ef4444;">⚠️ Règles classiques : Ne touchez pas les murs rouges ni votre propre corps !</small>');
+  let rulesInfo = createDiv('⚠️ Ne touchez pas les bords de l\'écran ni votre propre corps !');
   rulesInfo.parent(sec3);
-  rulesInfo.style('margin-top', '4px');
+  rulesInfo.addClass('switch-rules-note');
 
   // SECTION 4 : Audio
-  let sec4 = createDiv(); sec4.parent(uiContainer);
-  sec4.style('background', 'rgba(124, 58, 237, 0.08)'); sec4.style('padding', '8px 12px'); sec4.style('border-radius', '8px'); sec4.style('border', '1px solid rgba(124, 58, 237, 0.2)');
+  let sec4 = createDiv();
+  sec4.parent(uiContainer);
+  sec4.addClass('switch-section switch-section-audio');
 
-  let r4 = createDiv(); r4.parent(sec4);
-  r4.style('display', 'flex'); r4.style('flex-wrap', 'wrap'); r4.style('align-items', 'center'); r4.style('gap', '14px');
+  let r4 = createDiv();
+  r4.parent(sec4);
+  r4.addClass('switch-controls-row');
 
-  musicToggleBtn = createButton('🎵 Musique Cosmique : DÉMARRER');
+  musicToggleBtn = createButton('🎵 Musique : DÉMARRER');
   musicToggleBtn.parent(r4);
-  musicToggleBtn.style('background', '#7c3aed');
-  musicToggleBtn.style('color', '#ffffff');
-  musicToggleBtn.style('border', 'none');
-  musicToggleBtn.style('padding', '4px 10px');
-  musicToggleBtn.style('border-radius', '6px');
-  musicToggleBtn.style('cursor', 'pointer');
-  musicToggleBtn.style('font-weight', 'bold');
+  musicToggleBtn.addClass('switch-action-btn switch-btn-purple');
   musicToggleBtn.mousePressed(() => {
     let isPlaying = gameAudio.toggleBGM();
     mettreAJourBoutonMusique(isPlaying);
   });
 
-  let m1 = createDiv(); m1.parent(r4);
-  let lblVol = createSpan('Volume : '); lblVol.parent(m1);
+  let m1 = createDiv(); m1.parent(r4); m1.addClass('switch-slider-item');
+  let lblVol = createSpan('Volume :'); lblVol.parent(m1);
   musicVolSlider = createSlider(0, 1, 0.22, 0.02); musicVolSlider.parent(m1);
-  musicVolSlider.style('vertical-align', 'middle');
   musicVolSlider.input(() => {
     gameAudio.musicVolume = musicVolSlider.value();
   });
 
-  labelMusicStatus = createSpan('<i style="color:#a78bfa;">(Cliquez ou pressez une touche pour le son)</i>');
+  labelMusicStatus = createSpan('<span style="color:#6b21a8;font-size:11.5px;">(Cliquez pour activer le son)</span>');
   labelMusicStatus.parent(r4);
 }
 
@@ -280,23 +231,27 @@ function basculerMenuBurger() {
   if (isMenuOpen) {
     uiContainer.style('display', 'flex');
     burgerBtn.html('✕ Fermer');
-    burgerBtn.style('background', '#7c3aed');
+    burgerBtn.addClass('is-open');
   } else {
     uiContainer.style('display', 'none');
     burgerBtn.html('☰ Paramètres');
-    burgerBtn.style('background', 'rgba(15, 18, 34, 0.88)');
+    burgerBtn.removeClass('is-open');
   }
 }
 
 function mettreAJourBoutonMusique(isPlaying) {
   if (isPlaying) {
-    musicToggleBtn.html('🔊 Musique : EN COURS');
-    musicToggleBtn.style('background', '#059669');
-    labelMusicStatus.html('<span style="color:#34d399;">Synth BGM active</span>');
+    musicToggleBtn.html('🔊 Musique : ON');
+    musicToggleBtn.removeClass('switch-btn-purple');
+    musicToggleBtn.removeClass('switch-btn-muted');
+    musicToggleBtn.addClass('switch-btn-mint');
+    labelMusicStatus.html('<span style="color:#15803d;font-weight:700;font-size:12px;">✨ Synth BGM active</span>');
   } else {
-    musicToggleBtn.html('🔇 Musique : COUPÉE');
-    musicToggleBtn.style('background', '#4b5563');
-    labelMusicStatus.html('<span style="color:#9ca3af;">Musique en pause</span>');
+    musicToggleBtn.html('🔇 Musique : OFF');
+    musicToggleBtn.removeClass('switch-btn-mint');
+    musicToggleBtn.removeClass('switch-btn-purple');
+    musicToggleBtn.addClass('switch-btn-muted');
+    labelMusicStatus.html('<span style="color:#64748b;font-size:12px;">En pause</span>');
   }
 }
 
@@ -383,7 +338,7 @@ function draw() {
 
   // Bordure rouge d'avertissement classique (murs mortels)
   push();
-  stroke(239, 68, 68, 160);
+  stroke(255, 77, 109, 175);
   strokeWeight(4);
   noFill();
   rect(2, 2, width - 4, height - 4);
@@ -429,7 +384,12 @@ function draw() {
   let audioIcon = gameAudio.bgmPlaying ? '🔊 BGM' : '🔇 Muet';
   let modeIcon = (onyx.controlMode === 'KEYBOARD') ? '🕹️ Flèches' : '🖱️ Souris';
   let longueurTotale = onyx.anneaux.length + 1;
-  statusPill.html(`<b>🐰 Scorbunnies : ${scorbunnies.length} / ${totalScorbunniesDebut}</b> &nbsp;|&nbsp; <b>🐍 Taille : ${longueurTotale}</b> &nbsp;|&nbsp; <span style="color:#60a5fa;">${modeIcon}</span> &nbsp;|&nbsp; <span style="color:#a78bfa;">${audioIcon}</span>`);
+  statusPill.html(
+    `<span class="hud-chip hud-chip-coral">🐰 ${scorbunnies.length} / ${totalScorbunniesDebut}</span>` +
+    `<span class="hud-chip hud-chip-blue">🐍 Taille : ${longueurTotale}</span>` +
+    `<span class="hud-chip hud-chip-yellow">${modeIcon}</span>` +
+    `<span class="hud-chip hud-chip-purple">${audioIcon}</span>`
+  );
 
   if (gameState === 'PLAYING') {
     // 2. Déplacement d'Onix (clavier ou souris)
@@ -591,62 +551,85 @@ function declencherNomMiam(x, y) {
 
 function dessinerEcranGameOver() {
   push();
-  fill(0, 0, 0, 185);
+  // Voile lavande sombre semi-transparent
+  fill(45, 23, 76, 175);
+  noStroke();
   rect(0, 0, width, height);
 
-  let s = constrain(width / 900, 0.55, 1.15);
+  let s = constrain(width / 900, 0.55, 1.12);
+  let cardW = min(width * 0.84, 580 * s);
+  let cardH = min(height * 0.72, 270 * s);
+  let cx = width / 2;
+  let cy = height / 2;
+
+  // Ombre portée cartoon de la carte
+  rectMode(CENTER);
+  fill("#2d174c");
+  noStroke();
+  rect(cx + 6 * s, cy + 8 * s, cardW, cardH, 26 * s);
+
+  // Carte de dialogue style Nintendo Switch Kawaii
+  fill("#fcf6ff");
+  stroke("#2d174c");
+  strokeWeight(4 * s);
+  rect(cx, cy, cardW, cardH, 26 * s);
 
   textAlign(CENTER, CENTER);
-  textFont('Impact, "Arial Black", sans-serif');
+  textFont('Fredoka, "Trebuchet MS", system-ui, sans-serif');
 
   let isVictory = (scorbunnies.length === 0);
 
-  if (isVictory) {
-    fill("#38bdf8");
-    stroke(0);
-    strokeWeight(6 * s);
-    textSize(56 * s);
-    text("MIAM ! VICTOIRE !", width / 2, height / 2 - 48 * s);
-
-    fill("#facc15");
-    stroke(0);
-    strokeWeight(3.5 * s);
-    textSize(24 * s);
-    let totalAnneaux = onyx.anneaux.length + 1;
-    text("Onix a tout dévoré et mesure " + totalAnneaux + " anneaux rocheux !", width / 2, height / 2 + 10 * s);
-  } else {
-    fill("#ef4444");
-    stroke(0);
-    strokeWeight(6 * s);
-    textSize(56 * s);
-    text("GAME OVER !", width / 2, height / 2 - 48 * s);
-
-    fill("#facc15");
-    stroke(0);
-    strokeWeight(3.5 * s);
-    textSize(24 * s);
-    text(gameOverReason, width / 2, height / 2 + 10 * s);
-  }
+  // Bandeau titre coloré (Bleu Joy-Con pour Victoire, Rouge Corail pour Game Over)
+  let badgeW = cardW * 0.78;
+  let badgeH = 56 * s;
+  fill(isVictory ? "#38bdf8" : "#ff4d6d");
+  stroke("#2d174c");
+  strokeWeight(3.5 * s);
+  rect(cx, cy - cardH * 0.28, badgeW, badgeH, 999);
 
   fill("#ffffff");
-  noStroke();
-  textFont('system-ui, sans-serif');
-  textSize(17 * s);
-  text("💥 Scorbunnies dévorés : " + scoreMiam, width / 2, height / 2 + 48 * s);
+  stroke("#2d174c");
+  strokeWeight(3.5 * s);
+  textSize(34 * s);
+  text(isVictory ? "★ MIAM ! VICTOIRE ! ★" : "GAME OVER !", cx, cy - cardH * 0.28 + 1 * s);
 
-  let pulseAlpha = map(sin(frameCount * 0.08), -1, 1, 140, 255);
-  fill(226, 232, 240, pulseAlpha);
-  textSize(15 * s);
-  text("Appuyez sur ESPACE ou cliquez sur l'écran pour rejouer", width / 2, height / 2 + 82 * s);
+  // Sous-titre
+  noStroke();
+  fill("#2d174c");
+  textSize(19 * s);
+  if (isVictory) {
+    let totalAnneaux = onyx.anneaux.length + 1;
+    text("Onix a tout dévoré (" + totalAnneaux + " anneaux rocheux) !", cx, cy + 4 * s);
+  } else {
+    text(gameOverReason, cx, cy + 4 * s);
+  }
+
+  // Pastille de score jaune Pikachu
+  fill("#fde047");
+  stroke("#2d174c");
+  strokeWeight(2.5 * s);
+  rect(cx, cy + 46 * s, 260 * s, 36 * s, 999);
+
+  noStroke();
+  fill("#2d174c");
+  textSize(16 * s);
+  text("💥 Scorbunnies dévorés : " + scoreMiam, cx, cy + 47 * s);
+
+  // Invite pulsée pour rejouer
+  let pulseAlpha = map(sin(frameCount * 0.08), -1, 1, 130, 255);
+  fill(147, 51, 234, pulseAlpha);
+  textSize(14.5 * s);
+  text("Appuyez sur ESPACE ou cliquez sur l'écran pour rejouer", cx, cy + cardH * 0.37);
   pop();
 }
 
 function drawDebugLegend() {
   push();
-  let legendY = height - 120;
-  fill(10, 14, 24, 220);
-  noStroke();
-  rect(15, legendY - 10, 440, 115, 10);
+  let legendY = height - 118;
+  fill(45, 23, 76, 225);
+  stroke("#c084fc");
+  strokeWeight(2);
+  rect(14, legendY - 10, min(430, width - 28), 112, 14);
 
   strokeWeight(2);
   stroke("red"); noFill();
