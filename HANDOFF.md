@@ -114,6 +114,12 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - `pursue(target, predictionFrames)` : vise le point futur anticipé $\vec{p} + \vec{v} \times T$.
     - `evade(threat, predictionFrames)` : fuit le point futur anticipé en inversant la vitesse désirée (et non simplement la force).
   - **Gestion des bords asymétrique** : Scorbunny réapparaît du côté opposé (`edges()`), tandis que Gengar reste confiné dans l'arène (`bounceEdges()`).
+  - **Multi-Agents & Gestion de Flottes** :
+    - **Contrôle du nombre d'entités** : Curseurs dynamiques pour régler le nombre de Gengars (1 à 10) et de Scorbunnies (1 à 20).
+    - **Vitesses découplées** : Sliders dédiés pour la **vitesse normale** (croisière passive) et la **vitesse d'accélération** (poursuite active pour Gengar, évasion pour Scorbunny).
+    - **Déplacement passif fluide** : Gengar et Scorbunny patrouillent en permanence sur le canvas sans temps d'arrêt.
+    - **Sprites agrandis** : Dimensions accrues ($r=65$ pour Gengar, $r=55$ pour Scorbunny) pour une lisibilité et un impact visuel maximum.
+    - **Respawn & Score dynamique** : Lorsqu'un Scorbunny est capturé, il explose puis réapparaît instantanément à un point aléatoire éloigné des Gengars (`respawn()`), avec incrémentation du compteur de captures en direct.
   - **Décors & Ambiance Vaisseaux Spatiaux** :
     - Image d'arrière-plan haute définition `background 2.jpg` intégrée.
     - **Traînées de réacteurs (`TrailParticle extends Vehicle`)** : Émission de particules de plasma fluide à l'arrière des vaisseaux (traînée spectrale violette pour Gengar, traînée solaire jaune électrique pour Scorbunny, avec surcroît de poussée lors des phases de poursuite/fuite).
@@ -124,8 +130,5 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
   - **Effets Spéciaux & Juice Comics** :
     - Écran de secousse dynamique (*Screen Shake*) à l'impact.
     - Étoile d'explosion comics enrichie ([comicBoom.js](2-PursueEvade/comicBoom.js)) avec double dentelure colorée, rayons d'impact comiques et rebond pop-in.
-  - **Capture, Explosion et Game Over** :
-    - Dès que Gengar intercepte Scorbunny, une explosion de 45 particules (`Particle extends Vehicle`), une onomatopée comics (*KABOOM !*, *GOTCHA !*, *BAM !*) et le son percutant se déclenchent.
-    - Écran de Game Over avec compte à rebours de 3 secondes avant redémarrage automatique ou relance immédiate via <kbd>ESPACE</kbd> / Clic.
-  - **Panneau de contrôle complet** : Sliders vitesses/forces, durée de prédiction, champ de vision, volume audio, bouton BGM et bascule debug via <kbd>D</kbd>.
+  - **Panneau de contrôle complet** : Sliders vitesses normales/accélérées, nombre d'entités, durée de prédiction, champ de vision, volume audio, bouton BGM et bascule debug via <kbd>D</kbd>.
 - **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).

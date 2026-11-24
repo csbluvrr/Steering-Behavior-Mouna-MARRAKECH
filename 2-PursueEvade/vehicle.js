@@ -3,11 +3,12 @@ class Vehicle {
 
   constructor(x, y, normalSprite = null, seekingSprite = null) {
     this.pos = createVector(x, y);
-    this.vel = createVector(0, 0);
+    // Vitesse passive initiale multidirectionnelle
+    this.vel = p5.Vector.random2D().mult(random(3, 5));
     this.acc = createVector(0, 0);
     this.maxSpeed = 8;
     this.maxForce = 0.35;
-    this.r = 45;
+    this.r = 65; // Sprites agrandis pour une meilleure visibilité
 
     // Sprites pour la machine à états
     this.normalSprite = normalSprite;

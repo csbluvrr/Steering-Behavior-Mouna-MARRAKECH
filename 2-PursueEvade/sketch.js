@@ -1,31 +1,27 @@
-let pursuer;
-let target;
+let gengars = [];
+let scorbunnies = [];
 let particles = [];
 let trailParticles = [];
 let comicBooms = [];
 
 // Système audio synthétique
 let gameAudio;
-let previousScorbunnyEvading = false;
 let screenShake = 0;
-
-// État du jeu ('PLAYING' ou 'GAMEOVER')
-let gameState = 'PLAYING';
-let gameOverTimer = 0;
+let scoreCaptures = 0;
 
 // Sliders et contrôles d'interface utilisateur
-let vitesseSeekerSlider, forceSeekerSlider;
-let vitesseEvaderSlider, forceEvaderSlider;
+let nbGengarsSlider, vitesseNormaleGengarSlider, vitesseSeekingGengarSlider, forceGengarSlider;
+let nbScorbunniesSlider, vitesseNormaleScorbunnySlider, vitesseEvadingScorbunnySlider, forceScorbunnySlider;
 let predictionSlider, champVisionSlider;
 let musicVolSlider, musicToggleBtn;
 let debugCheckbox;
 let uiContainer;
 
 // Labels d'affichage dynamique
-let labelVitesseSeeker, labelForceSeeker;
-let labelVitesseEvader, labelForceEvader;
+let labelNbGengars, labelVitesseNormaleGengar, labelVitesseSeekingGengar, labelForceGengar;
+let labelNbScorbunnies, labelVitesseNormaleScorbunny, labelVitesseEvadingScorbunny, labelForceScorbunny;
 let labelPrediction, labelChampVision;
-let labelMusicStatus;
+let labelMusicStatus, labelScore;
 
 // Sprites d'animation et décor (Ressources 2)
 let gengarNormalImg, gengarSeekingImg;
@@ -60,11 +56,11 @@ function setup() {
 
 function creerInterfaceUtilisateur() {
   uiContainer = createDiv();
-  uiContainer.position(15, 12);
+  uiContainer.position(15, 10);
   uiContainer.style('display', 'flex');
   uiContainer.style('flex-direction', 'column');
-  uiContainer.style('gap', '7px');
-  uiContainer.style('background', 'rgba(10, 12, 22, 0.90)');
+  uiContainer.style('gap', '6px');
+  uiContainer.style('background', 'rgba(10, 12, 22, 0.92)');
   uiContainer.style('backdrop-filter', 'blur(8px)');
   uiContainer.style('padding', '10px 16px');
   uiContainer.style('border-radius', '12px');
@@ -75,57 +71,61 @@ function creerInterfaceUtilisateur() {
   uiContainer.style('font-size', '12px');
   uiContainer.style('z-index', '100');
 
-  // LIGNE 1 : Gengar (Seeker / Vaisseau violet)
-  let row1 = createDiv();
-  row1.parent(uiContainer);
-  row1.style('display', 'flex');
-  row1.style('flex-wrap', 'wrap');
-  row1.style('align-items', 'center');
-  row1.style('gap', '14px');
+  // LIGNE 1 : Flotte Gengar (Seekers)
+  let row1 = createDiv(); row1.parent(uiContainer);
+  row1.style('display', 'flex'); row1.style('flex-wrap', 'wrap'); row1.style('align-items', 'center'); row1.style('gap', '12px');
 
-  let title1 = createSpan('<b>🚀 GENGAR (Seeker) :</b>');
-  title1.parent(row1);
-  title1.style('color', '#c084fc');
+  let title1 = createSpan('<b>🚀 GENGAR (Seeker) :</b>'); title1.parent(row1); title1.style('color', '#c084fc');
 
-  let g1 = createDiv(); g1.parent(row1);
-  labelVitesseSeeker = createSpan('Vitesse : 8 '); labelVitesseSeeker.parent(g1);
-  vitesseSeekerSlider = createSlider(2, 25, 8, 1); vitesseSeekerSlider.parent(g1);
-  vitesseSeekerSlider.style('vertical-align', 'middle');
+  let gNb = createDiv(); gNb.parent(row1);
+  labelNbGengars = createSpan('Nombre : 2 '); labelNbGengars.parent(gNb);
+  nbGengarsSlider = createSlider(1, 10, 2, 1); nbGengarsSlider.parent(gNb);
+  nbGengarsSlider.style('vertical-align', 'middle');
 
-  let g2 = createDiv(); g2.parent(row1);
-  labelForceSeeker = createSpan('Force Max : 0.35 '); labelForceSeeker.parent(g2);
-  forceSeekerSlider = createSlider(0.05, 1.5, 0.35, 0.01); forceSeekerSlider.parent(g2);
-  forceSeekerSlider.style('vertical-align', 'middle');
+  let gNorm = createDiv(); gNorm.parent(row1);
+  labelVitesseNormaleGengar = createSpan('Vit. Normale : 4 '); labelVitesseNormaleGengar.parent(gNorm);
+  vitesseNormaleGengarSlider = createSlider(1, 15, 4, 1); vitesseNormaleGengarSlider.parent(gNorm);
+  vitesseNormaleGengarSlider.style('vertical-align', 'middle');
 
-  // LIGNE 2 : Scorbunny (Evader / Vaisseau jaune)
-  let row2 = createDiv();
-  row2.parent(uiContainer);
-  row2.style('display', 'flex');
-  row2.style('flex-wrap', 'wrap');
-  row2.style('align-items', 'center');
-  row2.style('gap', '14px');
+  let gSeek = createDiv(); gSeek.parent(row1);
+  labelVitesseSeekingGengar = createSpan('Vit. Poursuite : 8 '); labelVitesseSeekingGengar.parent(gSeek);
+  vitesseSeekingGengarSlider = createSlider(2, 25, 8, 1); vitesseSeekingGengarSlider.parent(gSeek);
+  vitesseSeekingGengarSlider.style('vertical-align', 'middle');
 
-  let title2 = createSpan('<b>🚀 SCORBUNNY (Evader) :</b>');
-  title2.parent(row2);
-  title2.style('color', '#fb923c');
+  let gF = createDiv(); gF.parent(row1);
+  labelForceGengar = createSpan('Force : 0.35 '); labelForceGengar.parent(gF);
+  forceGengarSlider = createSlider(0.05, 1.5, 0.35, 0.01); forceGengarSlider.parent(gF);
+  forceGengarSlider.style('vertical-align', 'middle');
 
-  let e1 = createDiv(); e1.parent(row2);
-  labelVitesseEvader = createSpan('Vitesse : 7 '); labelVitesseEvader.parent(e1);
-  vitesseEvaderSlider = createSlider(2, 22, 7, 1); vitesseEvaderSlider.parent(e1);
-  vitesseEvaderSlider.style('vertical-align', 'middle');
+  // LIGNE 2 : Flotte Scorbunny (Evaders)
+  let row2 = createDiv(); row2.parent(uiContainer);
+  row2.style('display', 'flex'); row2.style('flex-wrap', 'wrap'); row2.style('align-items', 'center'); row2.style('gap', '12px');
 
-  let e2 = createDiv(); e2.parent(row2);
-  labelForceEvader = createSpan('Force Max : 0.40 '); labelForceEvader.parent(e2);
-  forceEvaderSlider = createSlider(0.05, 1.5, 0.40, 0.01); forceEvaderSlider.parent(e2);
-  forceEvaderSlider.style('vertical-align', 'middle');
+  let title2 = createSpan('<b>🐰 SCORBUNNY (Evader) :</b>'); title2.parent(row2); title2.style('color', '#fb923c');
+
+  let sNb = createDiv(); sNb.parent(row2);
+  labelNbScorbunnies = createSpan('Nombre : 4 '); labelNbScorbunnies.parent(sNb);
+  nbScorbunniesSlider = createSlider(1, 20, 4, 1); nbScorbunniesSlider.parent(sNb);
+  nbScorbunniesSlider.style('vertical-align', 'middle');
+
+  let sNorm = createDiv(); sNorm.parent(row2);
+  labelVitesseNormaleScorbunny = createSpan('Vit. Normale : 4 '); labelVitesseNormaleScorbunny.parent(sNorm);
+  vitesseNormaleScorbunnySlider = createSlider(1, 15, 4, 1); vitesseNormaleScorbunnySlider.parent(sNorm);
+  vitesseNormaleScorbunnySlider.style('vertical-align', 'middle');
+
+  let sEvade = createDiv(); sEvade.parent(row2);
+  labelVitesseEvadingScorbunny = createSpan('Vit. Évasion : 7 '); labelVitesseEvadingScorbunny.parent(sEvade);
+  vitesseEvadingScorbunnySlider = createSlider(2, 25, 7, 1); vitesseEvadingScorbunnySlider.parent(sEvade);
+  vitesseEvadingScorbunnySlider.style('vertical-align', 'middle');
+
+  let sF = createDiv(); sF.parent(row2);
+  labelForceScorbunny = createSpan('Force : 0.40 '); labelForceScorbunny.parent(sF);
+  forceScorbunnySlider = createSlider(0.05, 1.5, 0.40, 0.01); forceScorbunnySlider.parent(sF);
+  forceScorbunnySlider.style('vertical-align', 'middle');
 
   // LIGNE 3 : Paramètres Poursuite & Champ de Vision
-  let row3 = createDiv();
-  row3.parent(uiContainer);
-  row3.style('display', 'flex');
-  row3.style('flex-wrap', 'wrap');
-  row3.style('align-items', 'center');
-  row3.style('gap', '16px');
+  let row3 = createDiv(); row3.parent(uiContainer);
+  row3.style('display', 'flex'); row3.style('flex-wrap', 'wrap'); row3.style('align-items', 'center'); row3.style('gap', '14px');
 
   let p1 = createDiv(); p1.parent(row3);
   labelPrediction = createSpan('Prédiction (T) : 12 frames '); labelPrediction.parent(p1);
@@ -145,20 +145,16 @@ function creerInterfaceUtilisateur() {
     Vehicle.debug = debugCheckbox.checked();
   });
 
-  // LIGNE 4 : Contrôles Audio & Musique Synthétique Chiptune
-  let row4 = createDiv();
-  row4.parent(uiContainer);
-  row4.style('display', 'flex');
-  row4.style('flex-wrap', 'wrap');
-  row4.style('align-items', 'center');
-  row4.style('gap', '14px');
+  // LIGNE 4 : Contrôles Audio & Score
+  let row4 = createDiv(); row4.parent(uiContainer);
+  row4.style('display', 'flex'); row4.style('flex-wrap', 'wrap'); row4.style('align-items', 'center'); row4.style('gap', '14px');
 
   musicToggleBtn = createButton('🎵 Musique Cosmique : DÉMARRER');
   musicToggleBtn.parent(row4);
   musicToggleBtn.style('background', '#7c3aed');
   musicToggleBtn.style('color', '#ffffff');
   musicToggleBtn.style('border', 'none');
-  musicToggleBtn.style('padding', '4px 10px');
+  musicToggleBtn.style('padding', '3px 9px');
   musicToggleBtn.style('border-radius', '6px');
   musicToggleBtn.style('cursor', 'pointer');
   musicToggleBtn.style('font-weight', 'bold');
@@ -168,7 +164,7 @@ function creerInterfaceUtilisateur() {
   });
 
   let m1 = createDiv(); m1.parent(row4);
-  let lblVol = createSpan('Volume BGM : '); lblVol.parent(m1);
+  let lblVol = createSpan('Volume : '); lblVol.parent(m1);
   musicVolSlider = createSlider(0, 1, 0.22, 0.02); musicVolSlider.parent(m1);
   musicVolSlider.style('vertical-align', 'middle');
   musicVolSlider.input(() => {
@@ -177,6 +173,12 @@ function creerInterfaceUtilisateur() {
 
   labelMusicStatus = createSpan('<i style="color:#a78bfa;">(Cliquez sur l\'écran pour activer le son)</i>');
   labelMusicStatus.parent(row4);
+
+  labelScore = createSpan('<b>💥 Captures : 0</b>');
+  labelScore.parent(row4);
+  labelScore.style('color', '#facc15');
+  labelScore.style('margin-left', 'auto');
+  labelScore.style('font-size', '13px');
 }
 
 function mettreAJourBoutonMusique(isPlaying) {
@@ -191,31 +193,48 @@ function mettreAJourBoutonMusique(isPlaying) {
   }
 }
 
-// Initialise ou réinitialise la partie
+// Initialise ou réinitialise la flotte de jeu
 function reinitialiserJeu() {
-  gameState = 'PLAYING';
+  gengars = [];
+  scorbunnies = [];
   particles = [];
   trailParticles = [];
   comicBooms = [];
   screenShake = 0;
-  previousScorbunnyEvading = false;
+  scoreCaptures = 0;
 
-  // Création du Seeker (Gengar)
-  pursuer = new Vehicle(random(120, width - 120), random(120, height - 120), gengarNormalImg, gengarSeekingImg);
-  pursuer.r = 45;
+  ajusterFlottes();
+}
 
-  // Création de l'Evader (Scorbunny) placé à distance respectable
-  let startX = random(120, width - 120);
-  let startY = random(120, height - 120);
-  while (dist(startX, startY, pursuer.pos.x, pursuer.pos.y) < 320) {
-    startX = random(120, width - 120);
-    startY = random(120, height - 120);
+function ajusterFlottes() {
+  let cibleGengars = nbGengarsSlider ? nbGengarsSlider.value() : 2;
+  let cibleScorbunnies = nbScorbunniesSlider ? nbScorbunniesSlider.value() : 4;
+
+  // Ajustement des Gengars
+  while (gengars.length < cibleGengars) {
+    let g = new Vehicle(random(100, width - 100), random(100, height - 100), gengarNormalImg, gengarSeekingImg);
+    g.r = 65;
+    gengars.push(g);
   }
-  target = new Target(startX, startY, scorbunnyNormalImg, scorbunnyEvadingImg);
-  target.r = 38;
+  while (gengars.length > cibleGengars) {
+    gengars.pop();
+  }
+
+  // Ajustement des Scorbunnies
+  while (scorbunnies.length < cibleScorbunnies) {
+    let s = new Target(random(100, width - 100), random(100, height - 100), scorbunnyNormalImg, scorbunnyEvadingImg);
+    s.r = 55;
+    scorbunnies.push(s);
+  }
+  while (scorbunnies.length > cibleScorbunnies) {
+    scorbunnies.pop();
+  }
 }
 
 function draw() {
+  // Ajuster dynamiquement la taille des flottes si les sliders bougent
+  ajusterFlottes();
+
   // Application du tremblement d'écran (Screen Shake) au monde de jeu
   push();
   if (screenShake > 0) {
@@ -231,109 +250,175 @@ function draw() {
     background(14, 16, 28);
   }
 
-  // Synchronisation dynamique des sliders
-  let vSeeker = vitesseSeekerSlider.value();
-  let fSeeker = forceSeekerSlider.value();
-  let vEvader = vitesseEvaderSlider.value();
-  let fEvader = forceEvaderSlider.value();
+  // Synchronisation dynamique des valeurs des sliders
+  let nbG = nbGengarsSlider.value();
+  let vNormG = vitesseNormaleGengarSlider.value();
+  let vSeekG = vitesseSeekingGengarSlider.value();
+  let fG = forceGengarSlider.value();
+
+  let nbS = nbScorbunniesSlider.value();
+  let vNormS = vitesseNormaleScorbunnySlider.value();
+  let vEvadeS = vitesseEvadingScorbunnySlider.value();
+  let fS = forceScorbunnySlider.value();
+
   let tPrediction = predictionSlider.value();
   let champVision = champVisionSlider.value();
 
-  labelVitesseSeeker.html('Vitesse : ' + vSeeker + ' ');
-  labelForceSeeker.html('Force Max : ' + Number(fSeeker).toFixed(2) + ' ');
-  labelVitesseEvader.html('Vitesse : ' + vEvader + ' ');
-  labelForceEvader.html('Force Max : ' + Number(fEvader).toFixed(2) + ' ');
+  labelNbGengars.html('Nombre : ' + nbG + ' ');
+  labelVitesseNormaleGengar.html('Vit. Normale : ' + vNormG + ' ');
+  labelVitesseSeekingGengar.html('Vit. Poursuite : ' + vSeekG + ' ');
+  labelForceGengar.html('Force : ' + Number(fG).toFixed(2) + ' ');
+
+  labelNbScorbunnies.html('Nombre : ' + nbS + ' ');
+  labelVitesseNormaleScorbunny.html('Vit. Normale : ' + vNormS + ' ');
+  labelVitesseEvadingScorbunny.html('Vit. Évasion : ' + vEvadeS + ' ');
+  labelForceScorbunny.html('Force : ' + Number(fS).toFixed(2) + ' ');
+
   labelPrediction.html('Prédiction (T) : ' + tPrediction + ' frames ');
   labelChampVision.html('Champ de Vision : ' + champVision + 'px ');
+  labelScore.html('<b>💥 Captures : ' + scoreCaptures + '</b>');
 
-  pursuer.maxSpeed = vSeeker;
-  pursuer.maxForce = fSeeker;
-  pursuer.champDeVision = champVision;
+  // 2. Gestion de la flotte Gengar (Seekers)
+  for (let gengar of gengars) {
+    gengar.champDeVision = champVision;
+    gengar.maxForce = fG;
 
-  target.maxSpeed = vEvader;
-  target.maxForce = fEvader;
-  target.champDeVision = champVision;
+    // Trouver le Scorbunny le plus proche dans son champ de vision
+    let closestScorbunny = null;
+    let minDistSq = champVision * champVision;
 
-  if (gameState === 'PLAYING') {
-    let d = p5.Vector.dist(pursuer.pos, target.pos);
-
-    // 1. Détection par Gengar (Seeker)
-    if (d < pursuer.champDeVision) {
-      pursuer.isSeeking = true;
-      let pursueForce = pursuer.pursue(target, tPrediction);
-      pursuer.applyForce(pursueForce);
-    } else {
-      pursuer.isSeeking = false;
-      pursuer.vel.mult(0.985);
-    }
-
-    // 2. Détection par Scorbunny (Evader)
-    if (d < target.champDeVision) {
-      target.isEvading = true;
-
-      // Déclenchement d'un son de PANIQUE quand Scorbunny détecte Gengar
-      if (!previousScorbunnyEvading) {
-        gameAudio.playPanicSound();
+    for (let scorbunny of scorbunnies) {
+      let dSq = (gengar.pos.x - scorbunny.pos.x) ** 2 + (gengar.pos.y - scorbunny.pos.y) ** 2;
+      if (dSq < minDistSq) {
+        minDistSq = dSq;
+        closestScorbunny = scorbunny;
       }
-
-      let evadeForce = target.evade(pursuer, tPrediction);
-      target.applyForce(evadeForce);
-    } else {
-      target.isEvading = false;
     }
-    previousScorbunnyEvading = target.isEvading;
 
-    // Déplacement des entités
-    pursuer.update();
-    target.update();
+    if (closestScorbunny) {
+      // Gengar passe en mode poursuite active
+      gengar.isSeeking = true;
+      gengar.maxSpeed = vSeekG;
+      let pursueForce = gengar.pursue(closestScorbunny, tPrediction);
+      gengar.applyForce(pursueForce);
+    } else {
+      // Gengar patrouille passivement à sa vitesse normale
+      gengar.isSeeking = false;
+      gengar.maxSpeed = vNormG;
+      if (gengar.vel.magSq() < 0.2) {
+        gengar.vel = p5.Vector.random2D().mult(vNormG);
+      } else {
+        gengar.vel.setMag(vNormG);
+      }
+    }
 
-    // 3. Traînées de propulseur de vaisseau spatial
-    // Vaisseau de Gengar : Traînée violette spectrale
-    if (pursuer.vel.mag() > 0.4) {
-      let emitCount = pursuer.isSeeking ? 3 : 1;
-      let backOffset = pursuer.vel.copy().normalize().mult(-pursuer.r * 0.75);
+    gengar.update();
+
+    // Traînée de propulseur violette de Gengar
+    if (gengar.vel.mag() > 0.4) {
+      let emitCount = gengar.isSeeking ? 3 : 1;
+      let backOffset = gengar.vel.copy().normalize().mult(-gengar.r * 0.75);
       for (let k = 0; k < emitCount; k++) {
-        let spawnPos = p5.Vector.add(pursuer.pos, backOffset);
-        spawnPos.add(p5.Vector.random2D().mult(random(2, 7)));
+        let spawnPos = p5.Vector.add(gengar.pos, backOffset);
+        spawnPos.add(p5.Vector.random2D().mult(random(2, 8)));
         trailParticles.push(new TrailParticle(spawnPos.x, spawnPos.y, '#c084fc', true));
       }
     }
+  }
 
-    // Vaisseau de Scorbunny : Traînée jaune plasma solaire
-    if (target.vel.mag() > 0.4) {
-      let emitCount = target.isEvading ? 3 : 1;
-      let backOffset = target.vel.copy().normalize().mult(-target.r * 0.75);
-      for (let k = 0; k < emitCount; k++) {
-        let spawnPos = p5.Vector.add(target.pos, backOffset);
-        spawnPos.add(p5.Vector.random2D().mult(random(2, 7)));
-        trailParticles.push(new TrailParticle(spawnPos.x, spawnPos.y, '#facc15', false));
+  // 3. Gestion de la flotte Scorbunny (Evaders)
+  for (let scorbunny of scorbunnies) {
+    scorbunny.champDeVision = champVision;
+    scorbunny.maxForce = fS;
+
+    // Trouver le Gengar le plus proche dans son champ de vision
+    let closestGengar = null;
+    let minDistSq = champVision * champVision;
+
+    for (let gengar of gengars) {
+      let dSq = (scorbunny.pos.x - gengar.pos.x) ** 2 + (scorbunny.pos.y - gengar.pos.y) ** 2;
+      if (dSq < minDistSq) {
+        minDistSq = dSq;
+        closestGengar = gengar;
       }
     }
 
-    // 4. Rendu des traînées (sous les vaisseaux)
-    for (let i = trailParticles.length - 1; i >= 0; i--) {
-      let tp = trailParticles[i];
-      tp.update();
-      tp.show();
-      if (tp.isDead) trailParticles.splice(i, 1);
-    }
-    if (trailParticles.length > 250) {
-      trailParticles.splice(0, trailParticles.length - 250);
+    let wasEvading = scorbunny.isEvading;
+
+    if (closestGengar) {
+      // Scorbunny passe en mode fuite active
+      scorbunny.isEvading = true;
+      scorbunny.maxSpeed = vEvadeS;
+
+      // Son de panique au moment de la détection
+      if (!wasEvading) {
+        gameAudio.playPanicSound();
+      }
+
+      let evadeForce = scorbunny.evade(closestGengar, tPrediction);
+      scorbunny.applyForce(evadeForce);
+    } else {
+      // Scorbunny flâne passivement à sa vitesse normale
+      scorbunny.isEvading = false;
+      scorbunny.maxSpeed = vNormS;
+      if (scorbunny.vel.magSq() < 0.2) {
+        scorbunny.vel = p5.Vector.random2D().mult(vNormS);
+      } else {
+        scorbunny.vel.setMag(vNormS);
+      }
     }
 
-    // 5. Rendu des vaisseaux Gengar et Scorbunny
-    pursuer.show();
-    target.show();
+    scorbunny.update();
 
-    // 6. Détection de capture : Interception de Scorbunny par Gengar
-    if (d < (pursuer.r + target.r) * 0.75) {
-      declencherCaptureExplosion(target.pos.x, target.pos.y);
-      gameState = 'GAMEOVER';
-      gameOverTimer = 180; // 3 secondes avant redémarrage auto
+    // Traînée de propulseur jaune de Scorbunny
+    if (scorbunny.vel.mag() > 0.4) {
+      let emitCount = scorbunny.isEvading ? 3 : 1;
+      let backOffset = scorbunny.vel.copy().normalize().mult(-scorbunny.r * 0.75);
+      for (let k = 0; k < emitCount; k++) {
+        let spawnPos = p5.Vector.add(scorbunny.pos, backOffset);
+        spawnPos.add(p5.Vector.random2D().mult(random(2, 8)));
+        trailParticles.push(new TrailParticle(spawnPos.x, spawnPos.y, '#facc15', false));
+      }
     }
   }
 
-  // Rendu des particules et onomatopées de capture
+  // 4. Rendu des traînées de propulseurs
+  for (let i = trailParticles.length - 1; i >= 0; i--) {
+    let tp = trailParticles[i];
+    tp.update();
+    tp.show();
+    if (tp.isDead) trailParticles.splice(i, 1);
+  }
+  if (trailParticles.length > 300) {
+    trailParticles.splice(0, trailParticles.length - 300);
+  }
+
+  // 5. Rendu des vaisseaux
+  for (let scorbunny of scorbunnies) {
+    scorbunny.show();
+  }
+  for (let gengar of gengars) {
+    gengar.show();
+  }
+
+  // 6. Détection des captures et collisions
+  for (let gengar of gengars) {
+    for (let scorbunny of scorbunnies) {
+      let captureDist = (gengar.r + scorbunny.r) * 0.7;
+      let dSq = (gengar.pos.x - scorbunny.pos.x) ** 2 + (gengar.pos.y - scorbunny.pos.y) ** 2;
+
+      if (dSq < captureDist * captureDist) {
+        // Déclencher explosion comics, tremblement d'écran et son percutant
+        declencherCaptureExplosion(scorbunny.pos.x, scorbunny.pos.y);
+        scoreCaptures++;
+
+        // Réapparition de Scorbunny à un point aléatoire éloigné des Gengars
+        scorbunny.respawn();
+      }
+    }
+  }
+
+  // 7. Rendu des particules et onomatopées de capture
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
     p.update();
@@ -351,15 +436,6 @@ function draw() {
   // Fin du repère avec Screen Shake
   pop();
 
-  // Écran de GAME OVER si Scorbunny a été intercepté
-  if (gameState === 'GAMEOVER') {
-    dessinerEcranGameOver();
-    gameOverTimer--;
-    if (gameOverTimer <= 0) {
-      reinitialiserJeu();
-    }
-  }
-
   // Légende du mode débug
   if (Vehicle.debug) {
     drawDebugLegend();
@@ -368,7 +444,7 @@ function draw() {
 
 // Déclenche une explosion spéciale comics avec tremblement d'écran et son percutant
 function declencherCaptureExplosion(x, y) {
-  screenShake = 24;
+  screenShake = 22;
 
   // Gerbe de 45 particules d'énergie
   for (let i = 0; i < 45; i++) {
@@ -382,46 +458,13 @@ function declencherCaptureExplosion(x, y) {
   gameAudio.playCatchExplosion();
 }
 
-// Dessin de l'écran de Game Over
-function dessinerEcranGameOver() {
-  push();
-  fill(0, 0, 0, 165);
-  rect(0, 0, width, height);
-
-  textAlign(CENTER, CENTER);
-  textFont('Impact, "Arial Black", sans-serif');
-
-  // Titre principal GAME OVER
-  fill("#ef4444");
-  stroke(0);
-  strokeWeight(7);
-  textSize(64);
-  text("GAME OVER !", width / 2, height / 2 - 40);
-
-  // Sous-titre
-  fill("#facc15");
-  stroke(0);
-  strokeWeight(4);
-  textSize(28);
-  text("Gengar a intercepté Scorbunny !", width / 2, height / 2 + 20);
-
-  // Compteur avant redémarrage
-  let secondesRestantes = Math.ceil(gameOverTimer / 60);
-  fill(255);
-  noStroke();
-  textFont('system-ui, sans-serif');
-  textSize(16);
-  text("Redémarrage automatique dans " + secondesRestantes + "s... (ou appuyez sur ESPACE)", width / 2, height / 2 + 75);
-  pop();
-}
-
 // Légende du mode débug
 function drawDebugLegend() {
   push();
   let legendY = height - 120;
   fill(10, 14, 24, 220);
   noStroke();
-  rect(15, legendY - 10, 420, 115, 10);
+  rect(15, legendY - 10, 430, 115, 10);
 
   strokeWeight(2.5);
   // Rouge = Vitesse
@@ -444,7 +487,7 @@ function drawDebugLegend() {
   // Traînées des vaisseaux
   fill("#c084fc"); noStroke(); circle(32, legendY + 68, 8);
   fill("#facc15"); circle(42, legendY + 68, 8);
-  fill("white"); text("🚀 Traînées de propulseur : Violet (Gengar) / Jaune (Scorbunny)", 58, legendY + 71);
+  fill("white"); text("🚀 Traînées réacteurs : Violet (Gengar) / Jaune (Scorbunny)", 58, legendY + 71);
 
   // Cercles de vision
   noFill(); stroke("rgba(0, 255, 136, 0.7)");
@@ -460,27 +503,27 @@ function keyPressed() {
     debugCheckbox.checked(Vehicle.debug);
   }
 
-  // Démarrage de l'audio lors d'une interaction utilisateur si non activé
+  // Démarrage de l'audio lors d'une interaction utilisateur
   if (!gameAudio.bgmPlaying && gameAudio.ctx && gameAudio.ctx.state === 'suspended') {
     gameAudio.init();
   }
 
-  // Touche ESPACE pour relancer immédiatement lors du Game Over
-  if (key === ' ' && gameState === 'GAMEOVER') {
-    reinitialiserJeu();
+  // Touche ESPACE pour ajouter un Scorbunny instantanément
+  if (key === ' ') {
+    let s = new Target(random(width), random(height), scorbunnyNormalImg, scorbunnyEvadingImg);
+    s.r = 55;
+    scorbunnies.push(s);
+    if (nbScorbunniesSlider) {
+      nbScorbunniesSlider.value(scorbunnies.length);
+    }
   }
 }
 
 function mousePressed() {
-  // Débloque l'audio et démarre la musique de fond cosmique au premier clic
+  // Débloque l'audio et démarre la musique au premier clic
   if (!gameAudio.bgmPlaying) {
     gameAudio.startBGM();
     mettreAJourBoutonMusique(true);
-  }
-
-  // Clic pour relancer si on est en Game Over
-  if (gameState === 'GAMEOVER') {
-    reinitialiserJeu();
   }
 }
 

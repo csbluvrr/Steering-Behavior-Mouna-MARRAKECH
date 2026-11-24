@@ -5,7 +5,7 @@ class Target extends Vehicle {
     this.vel = p5.Vector.random2D().mult(random(3, 5));
     this.maxSpeed = 6;
     this.maxForce = 0.4;
-    this.r = 38;
+    this.r = 55; // Sprites agrandis pour une meilleure lisibilité
 
     // Sprites pour la machine à états
     this.normalSprite = normalSprite;
@@ -14,6 +14,13 @@ class Target extends Vehicle {
 
     // Champ de vision (rayon de détection de fuite)
     this.champDeVision = 180;
+  }
+
+  // Réapparition aléatoire après interception
+  respawn() {
+    this.pos.set(random(this.r, width - this.r), random(this.r, height - this.r));
+    this.vel = p5.Vector.random2D().mult(this.maxSpeed);
+    this.isEvading = false;
   }
 
   update() {
