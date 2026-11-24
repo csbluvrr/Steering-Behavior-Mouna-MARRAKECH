@@ -130,5 +130,5 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
   - **Effets Spéciaux & Juice Comics** :
     - Écran de secousse dynamique (*Screen Shake*) à l'impact.
     - Étoile d'explosion comics enrichie ([comicBoom.js](2-PursueEvade/comicBoom.js)) avec double dentelure colorée, rayons d'impact comiques et rebond pop-in.
-  - **Panneau de contrôle complet** : Sliders vitesses normales/accélérées, nombre d'entités, durée de prédiction, champ de vision, volume audio, bouton BGM et bascule debug via <kbd>D</kbd>.
+  - **Menu Burger Ergonomique & Badge Persistant** : L'interface des curseurs est désormais escamotable via un bouton burger stylisé (`☰ Paramètres` / `✕ Fermer`). Un badge d'état compact (`🐰 Scorbunnies : X / Total | 💥 Détruits : Y | 🔊 BGM`) reste visible en permanence sans obstruer l'espace de jeu. Le panneau déroulant regroupe 4 sections distinctes (Gengar, Scorbunny, Reynolds, Audio).
 - **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).

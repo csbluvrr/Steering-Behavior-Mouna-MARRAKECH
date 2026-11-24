@@ -14,19 +14,25 @@ let gameAudio;
 let screenShake = 0;
 let scoreCaptures = 0;
 
+// Menu burger et interface utilisateur
+let burgerBtn;
+let isMenuOpen = false;
+let topBarContainer;
+let statusPill;
+let uiContainer;
+
 // Sliders et contrôles d'interface utilisateur
 let nbGengarsSlider, vitesseNormaleGengarSlider, vitesseSeekingGengarSlider, forceGengarSlider;
 let nbScorbunniesSlider, vitesseNormaleScorbunnySlider, vitesseEvadingScorbunnySlider, forceScorbunnySlider;
 let predictionSlider, champVisionSlider;
 let musicVolSlider, musicToggleBtn;
 let debugCheckbox;
-let uiContainer;
 
 // Labels d'affichage dynamique
 let labelNbGengars, labelVitesseNormaleGengar, labelVitesseSeekingGengar, labelForceGengar;
 let labelNbScorbunnies, labelVitesseNormaleScorbunny, labelVitesseEvadingScorbunny, labelForceScorbunny;
 let labelPrediction, labelChampVision;
-let labelMusicStatus, labelScore;
+let labelMusicStatus;
 
 // Sprites d'animation et décor (Ressources 2)
 let gengarNormalImg, gengarSeekingImg;
@@ -52,7 +58,7 @@ function setup() {
   // Initialisation du synthétiseur Web Audio API
   gameAudio = new GameAudio();
 
-  // Construction de l'interface graphique de contrôle
+  // Construction de l'interface utilisateur avec menu burger
   creerInterfaceUtilisateur();
 
   // Initialisation des entités
@@ -60,27 +66,92 @@ function setup() {
 }
 
 function creerInterfaceUtilisateur() {
+  // 1. BARRE FIXE SUPÉRIEURE (Bouton Burger + Badge d'état persistant)
+  topBarContainer = createDiv();
+  topBarContainer.position(15, 12);
+  topBarContainer.style('display', 'flex');
+  topBarContainer.style('align-items', 'center');
+  topBarContainer.style('gap', '10px');
+  topBarContainer.style('z-index', '1000');
+
+  // Bouton Burger stylisé
+  burgerBtn = createButton('☰ Paramètres');
+  burgerBtn.parent(topBarContainer);
+  burgerBtn.style('background', 'rgba(15, 18, 34, 0.88)');
+  burgerBtn.style('color', '#ffffff');
+  burgerBtn.style('border', '1px solid rgba(192, 132, 252, 0.45)');
+  burgerBtn.style('padding', '7px 14px');
+  burgerBtn.style('border-radius', '10px');
+  burgerBtn.style('cursor', 'pointer');
+  burgerBtn.style('font-family', 'system-ui, sans-serif');
+  burgerBtn.style('font-size', '13px');
+  burgerBtn.style('font-weight', '600');
+  burgerBtn.style('backdrop-filter', 'blur(8px)');
+  burgerBtn.style('box-shadow', '0 4px 14px rgba(0, 0, 0, 0.5)');
+  burgerBtn.style('transition', 'all 0.2s ease');
+  burgerBtn.mouseOver(() => {
+    burgerBtn.style('background', 'rgba(35, 28, 60, 0.95)');
+    burgerBtn.style('border-color', '#c084fc');
+  });
+  burgerBtn.mouseOut(() => {
+    burgerBtn.style('background', isMenuOpen ? '#7c3aed' : 'rgba(15, 18, 34, 0.88)');
+    burgerBtn.style('border-color', 'rgba(192, 132, 252, 0.45)');
+  });
+  burgerBtn.mousePressed(basculerMenuBurger);
+
+  // Badge d'état permanent (visible même menu fermé)
+  statusPill = createDiv();
+  statusPill.parent(topBarContainer);
+  statusPill.style('background', 'rgba(15, 18, 34, 0.85)');
+  statusPill.style('backdrop-filter', 'blur(8px)');
+  statusPill.style('border', '1px solid rgba(255, 255, 255, 0.18)');
+  statusPill.style('padding', '7px 14px');
+  statusPill.style('border-radius', '10px');
+  statusPill.style('color', 'white');
+  statusPill.style('font-family', 'system-ui, sans-serif');
+  statusPill.style('font-size', '12px');
+  statusPill.style('box-shadow', '0 4px 14px rgba(0, 0, 0, 0.4)');
+
+  // 2. PANNEAU DÉROULANT DU MENU BURGER
   uiContainer = createDiv();
-  uiContainer.position(15, 10);
-  uiContainer.style('display', 'flex');
+  uiContainer.addClass('burger-menu-panel');
+  uiContainer.position(15, 54);
+  uiContainer.style('display', 'none'); // Fermé par défaut
   uiContainer.style('flex-direction', 'column');
-  uiContainer.style('gap', '6px');
-  uiContainer.style('background', 'rgba(10, 12, 22, 0.92)');
-  uiContainer.style('backdrop-filter', 'blur(8px)');
-  uiContainer.style('padding', '10px 16px');
-  uiContainer.style('border-radius', '12px');
-  uiContainer.style('border', '1px solid rgba(255, 255, 255, 0.22)');
-  uiContainer.style('box-shadow', '0 8px 24px rgba(0, 0, 0, 0.65)');
+  uiContainer.style('gap', '10px');
+  uiContainer.style('width', '450px');
+  uiContainer.style('max-width', '92vw');
+  uiContainer.style('max-height', 'calc(100vh - 75px)');
+  uiContainer.style('overflow-y', 'auto');
+  uiContainer.style('background', 'rgba(10, 12, 24, 0.95)');
+  uiContainer.style('backdrop-filter', 'blur(14px)');
+  uiContainer.style('padding', '14px 18px');
+  uiContainer.style('border-radius', '14px');
+  uiContainer.style('border', '1px solid rgba(192, 132, 252, 0.35)');
+  uiContainer.style('box-shadow', '0 12px 36px rgba(0, 0, 0, 0.75)');
   uiContainer.style('color', 'white');
-  uiContainer.style('font-family', 'system-ui, -apple-system, sans-serif');
+  uiContainer.style('font-family', 'system-ui, sans-serif');
   uiContainer.style('font-size', '12px');
-  uiContainer.style('z-index', '100');
+  uiContainer.style('z-index', '999');
 
-  // LIGNE 1 : Flotte Gengar (Seekers)
-  let row1 = createDiv(); row1.parent(uiContainer);
+  // En-tête du panneau
+  let headerMenu = createDiv(); headerMenu.parent(uiContainer);
+  headerMenu.style('display', 'flex'); headerMenu.style('justify-content', 'space-between'); headerMenu.style('align-items', 'center');
+  headerMenu.style('border-bottom', '1px solid rgba(255, 255, 255, 0.15)'); headerMenu.style('padding-bottom', '6px');
+
+  let titleHeader = createSpan('<b>⚙️ Panneau de Contrôle des Flottes & IA</b>'); titleHeader.parent(headerMenu);
+  titleHeader.style('color', '#c084fc'); titleHeader.style('font-size', '13px');
+
+  // SECTION 1 : Flotte Gengar (Seekers)
+  let sec1 = createDiv(); sec1.parent(uiContainer);
+  sec1.style('background', 'rgba(192, 132, 252, 0.08)'); sec1.style('padding', '8px 12px'); sec1.style('border-radius', '8px');
+  sec1.style('border', '1px solid rgba(192, 132, 252, 0.2)');
+
+  let title1 = createDiv('<b>🚀 GENGAR (Poursuiveur / Seeker) :</b>'); title1.parent(sec1);
+  title1.style('color', '#c084fc'); title1.style('margin-bottom', '6px');
+
+  let row1 = createDiv(); row1.parent(sec1);
   row1.style('display', 'flex'); row1.style('flex-wrap', 'wrap'); row1.style('align-items', 'center'); row1.style('gap', '12px');
-
-  let title1 = createSpan('<b>🚀 GENGAR (Seeker) :</b>'); title1.parent(row1); title1.style('color', '#c084fc');
 
   let gNb = createDiv(); gNb.parent(row1);
   labelNbGengars = createSpan('Nombre : 2 '); labelNbGengars.parent(gNb);
@@ -103,11 +174,16 @@ function creerInterfaceUtilisateur() {
   forceGengarSlider = createSlider(0.05, 1.5, 0.35, 0.01); forceGengarSlider.parent(gF);
   forceGengarSlider.style('vertical-align', 'middle');
 
-  // LIGNE 2 : Flotte Scorbunny (Evaders)
-  let row2 = createDiv(); row2.parent(uiContainer);
-  row2.style('display', 'flex'); row2.style('flex-wrap', 'wrap'); row2.style('align-items', 'center'); row2.style('gap', '12px');
+  // SECTION 2 : Flotte Scorbunny (Evaders)
+  let sec2 = createDiv(); sec2.parent(uiContainer);
+  sec2.style('background', 'rgba(251, 146, 60, 0.08)'); sec2.style('padding', '8px 12px'); sec2.style('border-radius', '8px');
+  sec2.style('border', '1px solid rgba(251, 146, 60, 0.2)');
 
-  let title2 = createSpan('<b>🐰 SCORBUNNY (Evader) :</b>'); title2.parent(row2); title2.style('color', '#fb923c');
+  let title2 = createDiv('<b>🐰 SCORBUNNY (Fuyard / Evader) :</b>'); title2.parent(sec2);
+  title2.style('color', '#fb923c'); title2.style('margin-bottom', '6px');
+
+  let row2 = createDiv(); row2.parent(sec2);
+  row2.style('display', 'flex'); row2.style('flex-wrap', 'wrap'); row2.style('align-items', 'center'); row2.style('gap', '12px');
 
   let sNb = createDiv(); sNb.parent(row2);
   labelNbScorbunnies = createSpan('Nombre : 4 '); labelNbScorbunnies.parent(sNb);
@@ -130,8 +206,15 @@ function creerInterfaceUtilisateur() {
   forceScorbunnySlider = createSlider(0.05, 1.5, 0.40, 0.01); forceScorbunnySlider.parent(sF);
   forceScorbunnySlider.style('vertical-align', 'middle');
 
-  // LIGNE 3 : Paramètres Poursuite & Champ de Vision
-  let row3 = createDiv(); row3.parent(uiContainer);
+  // SECTION 3 : Paramètres Poursuite & Champ de Vision
+  let sec3 = createDiv(); sec3.parent(uiContainer);
+  sec3.style('background', 'rgba(0, 255, 136, 0.06)'); sec3.style('padding', '8px 12px'); sec3.style('border-radius', '8px');
+  sec3.style('border', '1px solid rgba(0, 255, 136, 0.2)');
+
+  let title3 = createDiv('<b>🎯 PILOTAGE REYNOLDS & VISION :</b>'); title3.parent(sec3);
+  title3.style('color', '#00ff88'); title3.style('margin-bottom', '6px');
+
+  let row3 = createDiv(); row3.parent(sec3);
   row3.style('display', 'flex'); row3.style('flex-wrap', 'wrap'); row3.style('align-items', 'center'); row3.style('gap', '14px');
 
   let p1 = createDiv(); p1.parent(row3);
@@ -152,8 +235,15 @@ function creerInterfaceUtilisateur() {
     Vehicle.debug = debugCheckbox.checked();
   });
 
-  // LIGNE 4 : Contrôles Audio & Score
-  let row4 = createDiv(); row4.parent(uiContainer);
+  // SECTION 4 : Contrôles Audio Synthétique
+  let sec4 = createDiv(); sec4.parent(uiContainer);
+  sec4.style('background', 'rgba(124, 58, 237, 0.08)'); sec4.style('padding', '8px 12px'); sec4.style('border-radius', '8px');
+  sec4.style('border', '1px solid rgba(124, 58, 237, 0.2)');
+
+  let title4 = createDiv('<b>🎵 AMBIANCE SONORE CHIPTUNE :</b>'); title4.parent(sec4);
+  title4.style('color', '#a78bfa'); title4.style('margin-bottom', '6px');
+
+  let row4 = createDiv(); row4.parent(sec4);
   row4.style('display', 'flex'); row4.style('flex-wrap', 'wrap'); row4.style('align-items', 'center'); row4.style('gap', '14px');
 
   musicToggleBtn = createButton('🎵 Musique Cosmique : DÉMARRER');
@@ -161,7 +251,7 @@ function creerInterfaceUtilisateur() {
   musicToggleBtn.style('background', '#7c3aed');
   musicToggleBtn.style('color', '#ffffff');
   musicToggleBtn.style('border', 'none');
-  musicToggleBtn.style('padding', '3px 9px');
+  musicToggleBtn.style('padding', '4px 10px');
   musicToggleBtn.style('border-radius', '6px');
   musicToggleBtn.style('cursor', 'pointer');
   musicToggleBtn.style('font-weight', 'bold');
@@ -180,12 +270,19 @@ function creerInterfaceUtilisateur() {
 
   labelMusicStatus = createSpan('<i style="color:#a78bfa;">(Cliquez sur l\'écran pour activer le son)</i>');
   labelMusicStatus.parent(row4);
+}
 
-  labelScore = createSpan('<b>🐰 Scorbunnies : 4 / 4 | 💥 Détruits : 0</b>');
-  labelScore.parent(row4);
-  labelScore.style('color', '#facc15');
-  labelScore.style('margin-left', 'auto');
-  labelScore.style('font-size', '13px');
+function basculerMenuBurger() {
+  isMenuOpen = !isMenuOpen;
+  if (isMenuOpen) {
+    uiContainer.style('display', 'flex');
+    burgerBtn.html('✕ Fermer');
+    burgerBtn.style('background', '#7c3aed');
+  } else {
+    uiContainer.style('display', 'none');
+    burgerBtn.html('☰ Paramètres');
+    burgerBtn.style('background', 'rgba(15, 18, 34, 0.88)');
+  }
 }
 
 function mettreAJourBoutonMusique(isPlaying) {
@@ -300,7 +397,10 @@ function draw() {
 
   labelPrediction.html('Prédiction (T) : ' + tPrediction + ' frames ');
   labelChampVision.html('Champ de Vision : ' + champVision + 'px ');
-  labelScore.html('<b>🐰 Scorbunnies : ' + scorbunnies.length + ' / ' + totalScorbunniesDebut + ' | 💥 Détruits : ' + scoreCaptures + '</b>');
+
+  // Mise à jour du badge d'état permanent dans la barre supérieure
+  let audioIcon = gameAudio.bgmPlaying ? '🔊 BGM' : '🔇 Muet';
+  statusPill.html(`<b>🐰 Scorbunnies : ${scorbunnies.length} / ${totalScorbunniesDebut}</b> &nbsp;|&nbsp; <b>💥 Détruits : ${scoreCaptures}</b> &nbsp;|&nbsp; <span style="color:#a78bfa;">${audioIcon}</span>`);
 
   if (gameState === 'PLAYING') {
     // 2. Gestion de la flotte Gengar (Seekers)
