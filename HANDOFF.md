@@ -131,4 +131,18 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - Écran de secousse dynamique (*Screen Shake*) à l'impact.
     - Étoile d'explosion comics enrichie ([comicBoom.js](2-PursueEvade/comicBoom.js)) avec double dentelure colorée, rayons d'impact comiques et rebond pop-in.
   - **Menu Burger Ergonomique & Badge Persistant** : L'interface des curseurs est désormais escamotable via un bouton burger stylisé (`☰ Paramètres` / `✕ Fermer`). Un badge d'état compact (`🐰 Scorbunnies : X / Total | 💥 Détruits : Y | 🔊 BGM`) reste visible en permanence sans obstruer l'espace de jeu. Le panneau déroulant regroupe 4 sections distinctes (Gengar, Scorbunny, Reynolds, Audio).
+- **Module 3-Arrival** :
+  - **Jeu Snake Pokémon : Onix vs Scorbunnies** :
+    - Onix est composé d'une tête (`SnakeHead extends Vehicle`), d'anneaux (`SnakeSegment extends Vehicle`) et d'une queue effilée (`isTail`), orchestrés par la classe [3-Arrival/snake.js](3-Arrival/snake.js) (`Snake extends Vehicle`).
+    - **Comportement Arrival** : La tête applique la force d'arrivée douce sur la position de la souris avec décélération proportionnelle (`slowingRadius`).
+    - **Suivi cinématique fluide des anneaux** : Chaque anneau poursuit un point virtuel situé à une distance réglable (`spacing`) derrière l'anneau précédent, avec orientation réaliste le long du corps rocheux.
+    - **Mécanique Snake "Eat & Grow"** : Chaque fois qu'Onix intercepte un Scorbunny avec sa tête :
+      - Effet **NOM !** : Déclenchement d'un son de mastication / croquage cartoon (`playNomSound()`), onomatopée comics (*NOM !*, *CRUNCH !*, *CHOMP !*, *MIAM !*), gerbe de particules rocheuses et secousse d'écran.
+      - **Onix grandit** immédiatement d'un nouvel anneau rocheux (`grow()`).
+      - Le Scorbunny est retiré de la manche.
+    - **Condition de Victoire / Fin de partie** : Lorsque tous les Scorbunnies ont été dévorés, affichage de l'écran de fin célébrant la taille finale d'Onix (avec relance via Espace ou clic).
+  - **Héritage visuel et sonore complet de 2-PursueEvade** :
+    - Décor animé `background.gif` en boucle continue.
+    - Scorbunnies autonomes (`Target extends Vehicle`) avec traînées plasma jaune, fuite d'urgence (`evade`) et son de panique aigu à la détection.
+    - Menu Burger ergonomique avec tiroir escamotable (`☰ Paramètres`), badge d'état persistant (`🐰 Scorbunnies | 🐍 Anneaux Onix | 💥 Miam | 🔊 BGM`), et contrôles de vitesse, freinage, espacement, fuite et musique.
 - **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).
