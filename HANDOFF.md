@@ -106,6 +106,10 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
     - Mode Normal (hors de portée) : `gengar normal.png` et `scorbunny normal.png`.
     - Mode Chasse (dans le champ de vision) : `gengar seeking.png` pour Gengar.
     - Mode Alerte/Évasion (dans le champ de vision) : `scorbunny evading.png` pour Scorbunny.
+  - **Optimisation des performances et résilience** :
+    - Compression et redimensionnement web des images de `ressources 2/` (de 22 Mo à ~1 Mo au total, textures passées de 3072x3072 à 512x512) éliminant tout blocage au chargement.
+    - Ajout de fallbacks d'erreur asynchrones dans `preload()` et replis vectoriels graphiques soignés dans `Vehicle` et `Target` si un sprite met du temps à se charger.
+    - Vérification du serveur HTTP local sur le port 8000 pour un rendu immédiat et sans erreur CORS.
   - **Comportements de pilotage de Reynolds** :
     - `pursue(target, predictionFrames)` : vise le point futur anticipé $\vec{p} + \vec{v} \times T$.
     - `evade(threat, predictionFrames)` : fuit le point futur anticipé en inversant la vitesse désirée (et non simplement la force).

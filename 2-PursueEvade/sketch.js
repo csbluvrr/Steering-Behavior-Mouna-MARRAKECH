@@ -25,12 +25,16 @@ let scorbunnyNormalImg, scorbunnyEvadingImg;
 let seekBgImg;
 
 function preload() {
-  // Chargement des sprites haute résolution de ressources 2
-  gengarNormalImg = loadImage('./ressources 2/gengar normal.png');
-  gengarSeekingImg = loadImage('./ressources 2/gengar seeking.png');
-  scorbunnyNormalImg = loadImage('./ressources 2/scorbunny normal.png');
-  scorbunnyEvadingImg = loadImage('./ressources 2/scorbunny evading.png');
-  seekBgImg = loadImage('../ressources/seekbackground.jpg');
+  const onErr = (name) => (err) => {
+    console.warn(`Avertissement : chargement de ${name} ignoré ou non disponible :`, err);
+  };
+
+  // Chargement sécurisé et non-bloquant des sprites et du décor
+  gengarNormalImg = loadImage('./ressources 2/gengar_normal.png', () => {}, onErr('gengar_normal'));
+  gengarSeekingImg = loadImage('./ressources 2/gengar_seeking.png', () => {}, onErr('gengar_seeking'));
+  scorbunnyNormalImg = loadImage('./ressources 2/scorbunny_normal.png', () => {}, onErr('scorbunny_normal'));
+  scorbunnyEvadingImg = loadImage('./ressources 2/scorbunny_evading.png', () => {}, onErr('scorbunny_evading'));
+  seekBgImg = loadImage('./ressources 2/background_2.jpg', () => {}, onErr('background_2'));
 }
 
 function setup() {
@@ -154,7 +158,11 @@ function reinitialiserJeu() {
 
 function draw() {
   // Arrière-plan
-  image(seekBgImg, 0, 0, width, height);
+  if (seekBgImg && seekBgImg.width > 0) {
+    image(seekBgImg, 0, 0, width, height);
+  } else {
+    background(18, 14, 28);
+  }
 
   // Synchronisation des sliders
   let vSeeker = vitesseSeekerSlider.value();

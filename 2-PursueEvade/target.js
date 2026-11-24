@@ -40,7 +40,7 @@ class Target extends Vehicle {
     // 2. Sélection dynamique du sprite
     let activeSprite = this.isEvading ? this.evadingSprite : this.normalSprite;
 
-    if (activeSprite) {
+    if (activeSprite && activeSprite.width > 0) {
       push();
       translate(this.pos.x, this.pos.y);
       imageMode(CENTER);
@@ -53,9 +53,13 @@ class Target extends Vehicle {
       push();
       stroke(255);
       strokeWeight(2);
-      fill(this.isEvading ? "orange" : "pink");
+      fill(this.isEvading ? "#fb923c" : "#fdba74");
       translate(this.pos.x, this.pos.y);
       circle(0, 0, this.r * 2);
+      // Petites oreilles de lapin mignonnes en fallback
+      fill(255, 180, 180);
+      ellipse(-this.r * 0.35, -this.r * 0.9, this.r * 0.35, this.r * 0.8);
+      ellipse(this.r * 0.35, -this.r * 0.9, this.r * 0.35, this.r * 0.8);
       pop();
     }
 

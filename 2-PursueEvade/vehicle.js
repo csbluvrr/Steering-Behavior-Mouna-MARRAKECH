@@ -132,7 +132,7 @@ class Vehicle {
     // 2. Sélection dynamique du sprite selon l'état de détection
     let activeSprite = this.isSeeking ? this.seekingSprite : this.normalSprite;
 
-    if (activeSprite) {
+    if (activeSprite && activeSprite.width > 0) {
       push();
       translate(this.pos.x, this.pos.y);
       imageMode(CENTER);
@@ -146,7 +146,7 @@ class Vehicle {
       push();
       stroke(255);
       strokeWeight(2);
-      fill(this.isSeeking ? "#a855f7" : 255);
+      fill(this.isSeeking ? "#a855f7" : "#7c3aed");
       translate(this.pos.x, this.pos.y);
       rotate(this.vel.heading());
       triangle(-this.r, -this.r / 2, -this.r, this.r / 2, this.r, 0);
