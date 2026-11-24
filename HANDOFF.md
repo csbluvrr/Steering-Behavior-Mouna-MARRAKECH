@@ -145,6 +145,12 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
       - **Collision avec les Murs** : Franchir les limites de l'écran provoque un crash fatal (`checkWallCollision()`) avec son de choc rocheux (`playCrashSound()`) et Game Over.
       - **Auto-Collision** : Toucher son propre corps rocheux (à partir du 4ème anneau) est mortel (`checkSelfCollision()`).
       - **Bordure visuelle de danger** : Cadre néon rouge d'avertissement autour de l'arène.
+    - **Protection & Évitement des Coins pour Scorbunny** :
+      - **Interdiction de toucher les coins de l'écran** : Les Scorbunnies sont dotés d'un comportement d'évitement actif (`avoidCorners`) repoussant les 4 angles morts de l'écran (`detectionRadius = 220px`).
+      - **Barrière physique infranchissable (`containAndBounce`)** : Rayon d'exclusion absolu de 120 px aux 4 coins avec projection et réflexion de la vitesse, interdisant physiquement tout contact avec les coins.
+      - **Confinement dans l'arène (`avoidWalls`)** : Remplacement de la boucle torique par un confinement intérieur rebondissant pour que les proies restent toujours chassables sans forcer Onix à s'écraser sur les parois.
+      - **Génération sûre (`positionSureScorbunny`)** : Les Scorbunnies apparaissent toujours à plus de 200 px des 4 coins.
+      - **Visualisation Debug** : Affichage des arcs d'exclusion des 4 coins en mode debug (<kbd>D</kbd>).
     - **Mécanique Snake "Eat & Grow"** : Chaque fois qu'Onix intercepte un Scorbunny avec sa tête :
       - Effet **NOM !** : Déclenchement d'un son de mastication / croquage cartoon (`playNomSound()`), onomatopée comics (*NOM !*, *CRUNCH !*, *CHOMP !*, *MIAM !*), gerbe de particules rocheuses et secousse d'écran.
       - **Onix grandit** immédiatement d'un nouvel anneau rocheux (`grow()`).

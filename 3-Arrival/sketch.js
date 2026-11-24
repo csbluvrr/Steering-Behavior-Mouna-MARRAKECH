@@ -290,6 +290,34 @@ function mettreAJourBoutonMusique(isPlaying) {
   }
 }
 
+// Calcule une position d'apparition sûre éloignée des coins et des murs mortels
+function positionSureScorbunny() {
+  let margin = 120;
+  let safeCornerDist = 200;
+  let corners = [
+    createVector(0, 0),
+    createVector(width, 0),
+    createVector(0, height),
+    createVector(width, height)
+  ];
+
+  for (let attempt = 0; attempt < 50; attempt++) {
+    let x = random(margin, width - margin);
+    let y = random(margin, height - margin);
+    let isSafe = true;
+    for (let c of corners) {
+      if (dist(x, y, c.x, c.y) < safeCornerDist) {
+        isSafe = false;
+        break;
+      }
+    }
+    if (isSafe) {
+      return createVector(x, y);
+    }
+  }
+  return createVector(width / 2 + random(-100, 100), height / 2 + random(-100, 100));
+}
+
 function reinitialiserJeu() {
   gameState = 'PLAYING';
   gameOverTimer = 0;
@@ -306,7 +334,8 @@ function reinitialiserJeu() {
   totalScorbunniesDebut = nbScorbunniesSlider ? nbScorbunniesSlider.value() : 5;
   scorbunnies = [];
   for (let i = 0; i < totalScorbunniesDebut; i++) {
-    let s = new Target(random(120, width - 120), random(120, height - 120), scorbunnyNormalImg, scorbunnyEvadingImg);
+    let pos = positionSureScorbunny();
+    let s = new Target(pos.x, pos.y, scorbunnyNormalImg, scorbunnyEvadingImg);
     scorbunnies.push(s);
   }
 }
@@ -315,7 +344,8 @@ function ajusterScorbunnies() {
   let cible = nbScorbunniesSlider.value();
   totalScorbunniesDebut = cible;
   while (scorbunnies.length < cible) {
-    let s = new Target(random(120, width - 120), random(120, height - 120), scorbunnyNormalImg, scorbunnyEvadingImg);
+    let pos = positionSureScorbunny();
+    let s = new Target(pos.x, pos.y, scorbunnyNormalImg, scorbunnyEvadingImg);
     scorbunnies.push(s);
   }
   while (scorbunnies.length > cible) {
@@ -347,6 +377,19 @@ function draw() {
   strokeWeight(4);
   noFill();
   rect(2, 2, width - 4, height - 4);
+
+  // En mode debug, visualisation des arcs d'exclusion des 4 coins
+  if (Vehicle.debug) {
+    stroke(251, 146, 60, 180);
+    strokeWeight(2);
+    drawingContext.setLineDash([5, 5]);
+    let safeR = 120 * 2;
+    arc(0, 0, safeR, safeR, 0, HALF_PI);
+    arc(width, 0, safeR, safeR, HALF_PI, PI);
+    arc(0, height, safeR, safeR, -HALF_PI, 0);
+    arc(width, height, safeR, safeR, PI, PI + HALF_PI);
+    drawingContext.setLineDash([]);
+  }
   pop();
 
   // Synchronisation des sliders
@@ -419,6 +462,13 @@ function draw() {
           scorbunny.vel.setMag(vNormS);
         }
       }
+
+      // Répulsion active et anticipée des 4 coins et des murs (interdit tout contact avec les coins)
+      let cornerForce = scorbunny.avoidCorners(220);
+      scorbunny.applyForce(cornerForce);
+
+      let wallForce = scorbunny.avoidWalls(75);
+      scorbunny.applyForce(wallForce);
 
       scorbunny.update();
 

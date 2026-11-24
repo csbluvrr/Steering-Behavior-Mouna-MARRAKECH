@@ -4,7 +4,7 @@ class Target extends Vehicle {
 
     this.vel = p5.Vector.random2D().mult(random(3, 5));
     this.maxSpeed = 5;
-    this.maxForce = 0.4;
+    this.maxForce = 0.45;
     this.r = 45;
 
     // Sprites pour la machine à états de Scorbunny
@@ -14,6 +14,11 @@ class Target extends Vehicle {
 
     // Champ de vision (rayon de détection de fuite)
     this.champDeVision = 200;
+
+    // Paramètres d'exclusion et d'évitement des 4 coins de l'écran
+    this.cornerAvoidDistance = 220; // Rayon de détection et répulsion anticipée
+    this.cornerSafetyRadius = 120;  // Rayon absolu d'interdiction (impossible à toucher)
+    this.wallMargin = 60;          // Marge de sécurité par rapport aux parois droites
   }
 
   // Évasion prédictive (Craig Reynolds)
@@ -39,14 +44,117 @@ class Target extends Vehicle {
     return this.flee(threatAhead);
   }
 
+  // Comportement de répulsion active anticipée pour ne jamais approcher les 4 coins
+  avoidCorners(detectionRadius = 220) {
+    let steerTotal = createVector(0, 0);
+    let corners = [
+      createVector(0, 0),
+      createVector(width, 0),
+      createVector(0, height),
+      createVector(width, height)
+    ];
+
+    for (let c of corners) {
+      let d = p5.Vector.dist(this.pos, c);
+      if (d < detectionRadius && d > 0.001) {
+        let diff = p5.Vector.sub(this.pos, c);
+        // Force de répulsion inversement proportionnelle à la distance
+        let factor = map(d, this.cornerSafetyRadius, detectionRadius, 2.2, 0.6, true);
+        let desired = diff.normalize().mult(this.maxSpeed * factor);
+        let steer = p5.Vector.sub(desired, this.vel);
+        steer.limit(this.maxForce * 2.2);
+        steerTotal.add(steer);
+      }
+    }
+
+    return steerTotal;
+  }
+
+  // Évitement fluide des parois droites pour rester dans l'arène de jeu
+  avoidWalls(margin = 75) {
+    let steer = createVector(0, 0);
+    let desired = null;
+
+    if (this.pos.x < margin) {
+      desired = createVector(this.maxSpeed, this.vel.y);
+    } else if (this.pos.x > width - margin) {
+      desired = createVector(-this.maxSpeed, this.vel.y);
+    }
+
+    if (this.pos.y < margin) {
+      let desY = createVector(this.vel.x, this.maxSpeed);
+      desired = desired ? p5.Vector.add(desired, desY) : desY;
+    } else if (this.pos.y > height - margin) {
+      let desY = createVector(this.vel.x, -this.maxSpeed);
+      desired = desired ? p5.Vector.add(desired, desY) : desY;
+    }
+
+    if (desired) {
+      desired.setMag(this.maxSpeed);
+      steer = p5.Vector.sub(desired, this.vel);
+      steer.limit(this.maxForce * 1.5);
+    }
+
+    return steer;
+  }
+
+  // Confinement physique absolu : barrière infranchissable sur les 4 coins et rebond aux parois
+  containAndBounce() {
+    let corners = [
+      createVector(0, 0),
+      createVector(width, 0),
+      createVector(0, height),
+      createVector(width, height)
+    ];
+
+    // 1. Barrière infranchissable sur les 4 coins : empêche tout contact avec les coins
+    for (let c of corners) {
+      let d = p5.Vector.dist(this.pos, c);
+      if (d < this.cornerSafetyRadius) {
+        let pushDir = p5.Vector.sub(this.pos, c);
+        if (pushDir.magSq() < 0.001) {
+          pushDir = createVector(c.x === 0 ? 1 : -1, c.y === 0 ? 1 : -1);
+        }
+        pushDir.normalize();
+
+        // Repousser hermétiquement hors du rayon du coin
+        this.pos.set(p5.Vector.add(c, p5.Vector.mult(pushDir, this.cornerSafetyRadius)));
+
+        // Réflexion élastique de la vitesse si dirigée vers le coin
+        let dot = p5.Vector.dot(this.vel, pushDir);
+        if (dot < 0) {
+          this.vel.sub(p5.Vector.mult(pushDir, 2 * dot));
+          this.vel.mult(0.9);
+        }
+      }
+    }
+
+    // 2. Maintien et rebond doux sur les parois droites du canvas
+    if (this.pos.x < this.wallMargin) {
+      this.pos.x = this.wallMargin;
+      if (this.vel.x < 0) this.vel.x = -this.vel.x * 0.85;
+    } else if (this.pos.x > width - this.wallMargin) {
+      this.pos.x = width - this.wallMargin;
+      if (this.vel.x > 0) this.vel.x = -this.vel.x * 0.85;
+    }
+
+    if (this.pos.y < this.wallMargin) {
+      this.pos.y = this.wallMargin;
+      if (this.vel.y < 0) this.vel.y = -this.vel.y * 0.85;
+    } else if (this.pos.y > height - this.wallMargin) {
+      this.pos.y = height - this.wallMargin;
+      if (this.vel.y > 0) this.vel.y = -this.vel.y * 0.85;
+    }
+  }
+
   update() {
     this.vel.add(this.acc);
     this.vel.limit(this.maxSpeed);
     this.pos.add(this.vel);
     this.acc.set(0, 0);
 
-    // Les cibles réapparaissent de l'autre côté du canvas (boucle torique)
-    this.edges();
+    // Maintien strict dans l'espace jouable & protection absolue contre les coins
+    this.containAndBounce();
   }
 
   show() {
@@ -88,19 +196,6 @@ class Target extends Vehicle {
 
     if (Vehicle.debug) {
       this.drawVector(this.pos, this.vel, "cyan", 6);
-    }
-  }
-
-  edges() {
-    if (this.pos.x > width + this.r) {
-      this.pos.x = -this.r;
-    } else if (this.pos.x < -this.r) {
-      this.pos.x = width + this.r;
-    }
-    if (this.pos.y > height + this.r) {
-      this.pos.y = -this.r;
-    } else if (this.pos.y < -this.r) {
-      this.pos.y = height + this.r;
     }
   }
 }
