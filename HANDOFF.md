@@ -134,15 +134,26 @@ Avant de répondre à l'utilisateur ou d'ajouter du code :
 - **Module 3-Arrival** :
   - **Jeu Snake Pokémon : Onix vs Scorbunnies** :
     - Onix est composé d'une tête (`SnakeHead extends Vehicle`), d'anneaux (`SnakeSegment extends Vehicle`) et d'une queue effilée (`isTail`), orchestrés par la classe [3-Arrival/snake.js](3-Arrival/snake.js) (`Snake extends Vehicle`).
-    - **Comportement Arrival** : La tête applique la force d'arrivée douce sur la position de la souris avec décélération proportionnelle (`slowingRadius`).
-    - **Suivi cinématique fluide des anneaux** : Chaque anneau poursuit un point virtuel situé à une distance réglable (`spacing`) derrière l'anneau précédent, avec orientation réaliste le long du corps rocheux.
+    - **Comportement Arrival & Contrôles Hybrides** :
+      - Mode Flèches / ZQSD (<kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>) : Déplacement directionnel continu avec intégration Euler de Reynolds ($\vec{v}_{\text{desired}} = \vec{d} \times v_{\text{max}}$). La marche arrière instantanée à 180° est bridée.
+      - Mode Souris : La tête applique la force d'arrivée douce sur la position du curseur avec rayon de décélération (`slowingRadius`).
+      - Bouton de bascule `🕹️ Mode : Clavier (Flèches)` / `🖱️ Mode : Souris` accessible dans le menu burger.
+    - **Anneaux Soudés & Cohésion Corporelle** :
+      - Remplacement du suivi élastique flottant par une contrainte de distance cinématique rigide (`spacing = 22px`).
+      - Les segments restent parfaitement collés et imbriqués sans se distendre lors des accélérations ou des virages serrés.
+    - **Règles Classiques du Snake** :
+      - **Collision avec les Murs** : Franchir les limites de l'écran provoque un crash fatal (`checkWallCollision()`) avec son de choc rocheux (`playCrashSound()`) et Game Over.
+      - **Auto-Collision** : Toucher son propre corps rocheux (à partir du 4ème anneau) est mortel (`checkSelfCollision()`).
+      - **Bordure visuelle de danger** : Cadre néon rouge d'avertissement autour de l'arène.
     - **Mécanique Snake "Eat & Grow"** : Chaque fois qu'Onix intercepte un Scorbunny avec sa tête :
       - Effet **NOM !** : Déclenchement d'un son de mastication / croquage cartoon (`playNomSound()`), onomatopée comics (*NOM !*, *CRUNCH !*, *CHOMP !*, *MIAM !*), gerbe de particules rocheuses et secousse d'écran.
       - **Onix grandit** immédiatement d'un nouvel anneau rocheux (`grow()`).
       - Le Scorbunny est retiré de la manche.
-    - **Condition de Victoire / Fin de partie** : Lorsque tous les Scorbunnies ont été dévorés, affichage de l'écran de fin célébrant la taille finale d'Onix (avec relance via Espace ou clic).
+    - **Condition de Victoire / Défaite** :
+      - Défaite : Crash contre un mur ou auto-collision avec décompte de 4s et relance par <kbd>ESPACE</kbd>.
+      - Victoire : Tous les Scorbunnies dévorés avec célébration de la taille maximale atteinte.
   - **Héritage visuel et sonore complet de 2-PursueEvade** :
     - Décor animé `background.gif` en boucle continue.
     - Scorbunnies autonomes (`Target extends Vehicle`) avec traînées plasma jaune, fuite d'urgence (`evade`) et son de panique aigu à la détection.
-    - Menu Burger ergonomique avec tiroir escamotable (`☰ Paramètres`), badge d'état persistant (`🐰 Scorbunnies | 🐍 Anneaux Onix | 💥 Miam | 🔊 BGM`), et contrôles de vitesse, freinage, espacement, fuite et musique.
+    - Menu Burger ergonomique avec tiroir escamotable (`☰ Paramètres`), badge d'état persistant (`🐰 Scorbunnies | 🐍 Anneaux Onix | 💥 Miam | 🕹️ Contrôles | 🔊 BGM`), et contrôles complets.
 - **Transmission** : Création du présent fichier [HANDOFF.md](HANDOFF.md).

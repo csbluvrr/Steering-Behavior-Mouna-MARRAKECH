@@ -234,4 +234,28 @@ class GameAudio {
 
     noise.start(time);
   }
+
+  // Son de crash rocheux percutant (mur ou auto-collision)
+  playCrashSound() {
+    this.init();
+    if (!this.ctx) return;
+    try {
+      let now = this.ctx.currentTime;
+      let vol = this.sfxVolume * 1.3;
+
+      let osc = this.ctx.createOscillator();
+      let gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(30, now + 0.35);
+
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.37);
+    } catch (e) {}
+  }
 }
