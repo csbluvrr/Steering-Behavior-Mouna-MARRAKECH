@@ -5,7 +5,7 @@ Ce projet rassemble une suite d'applications, d'exercices et de simulations inte
 L'article original est consultable dans le dossier :
 `article craig reynolds/Steering Behaviors For Autonomous Characters.pdf`
 
-<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 16:58:02 UTC* <!-- END:LAST_UPDATED -->
+<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 17:08:57 UTC* <!-- END:LAST_UPDATED -->
 
 ---
 
@@ -45,6 +45,7 @@ Ce tableau est **automatiquement synchronisé** à chaque modification ou ajout 
 | **3-Arrival** | Exercice / Démo | `ComicBoom, GameAudio, Obstacle, Particle, Snake, SnakeHead, SnakeSegment, Target, TrailParticle, Vehicle` | `evade, avoidobstacles, arrive, follow, flee, seek` | [3-Arrival](./3-Arrival/index.html) |
 | **3-Arrival_correction** | Correction / Avancé | `Snake, SnakeWander, Vehicle, Target` | `arrive, wander, seek, flee, pursue, evade` | [3-Arrival_correction](./3-Arrival_correction/index.html) |
 | **4-Wander** | Exercice / Démo | `Vehicle` | `wander, seek, flee, pursue, evade, arrive` | [4-Wander](./4-Wander/index.html) |
+| **projet** | Exercice / Démo | `ComicBoom, GameAudio, Obstacle, Particle, Snake, SnakeHead, SnakeSegment, Target, TrailParticle, Vehicle` | `evade, avoidobstacles, arrive, follow, flee, seek` | [projet](./projet/index.html) |
 
 <!-- END:PROJECTS_TABLE -->
 
