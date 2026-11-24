@@ -552,13 +552,9 @@ function draw() {
 
   pop();
 
-  // Écran de fin de partie (Victoire ou Crash)
+  // Écran de fin de partie (Victoire ou Crash) - redémarrage manuel uniquement (ESPACE ou clic sur l'écran)
   if (gameState === 'GAMEOVER') {
     dessinerEcranGameOver();
-    gameOverTimer--;
-    if (gameOverTimer <= 0) {
-      reinitialiserJeu();
-    }
   }
 
   if (Vehicle.debug) {
@@ -638,10 +634,10 @@ function dessinerEcranGameOver() {
   textSize(17 * s);
   text("💥 Scorbunnies dévorés : " + scoreMiam, width / 2, height / 2 + 48 * s);
 
-  let secondesRestantes = Math.ceil(gameOverTimer / 60);
-  fill("#94a3b8");
-  textSize(14 * s);
-  text("Nouvelle manche dans " + secondesRestantes + "s... (ou appuyez sur ESPACE)", width / 2, height / 2 + 80 * s);
+  let pulseAlpha = map(sin(frameCount * 0.08), -1, 1, 140, 255);
+  fill(226, 232, 240, pulseAlpha);
+  textSize(15 * s);
+  text("Appuyez sur ESPACE ou cliquez sur l'écran pour rejouer", width / 2, height / 2 + 82 * s);
   pop();
 }
 
@@ -706,7 +702,7 @@ function mousePressed() {
     mettreAJourBoutonMusique(true);
   }
 
-  if (gameState === 'GAMEOVER') {
+  if (gameState === 'GAMEOVER' && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
     reinitialiserJeu();
   }
 }
