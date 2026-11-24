@@ -36,9 +36,9 @@ html, body {
 /* Zone d'écran de la console (alignée exactement sur l'écran vert découpé) */
 #game-screen-slot {
   position: absolute;
-  left: 20.10%;
-  top: 25.29%;
-  width: 59.69%;
+  left: 19.68%;
+  top: 34.01%;
+  width: 61.54%;
   height: 54.94%;
   overflow: hidden;
   z-index: 1;
@@ -452,6 +452,31 @@ html, body {
 }
 
 .switch-pause-topbtn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.switch-fullscreen-topbtn {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--joycon-blue);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+}
+
+.switch-fullscreen-topbtn:hover {
+  background: var(--joycon-blue-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+.switch-fullscreen-topbtn:active {
   transform: translateY(3px);
   box-shadow: 0 1px 0 var(--ink);
 }

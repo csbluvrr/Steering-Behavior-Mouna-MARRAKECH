@@ -96,9 +96,10 @@ let screenShake = 0;
 let scoreMiam = 0;
 let scoreTotal = 0;
 
-// Menu burger, pause et interface utilisateur
+// Menu burger, pause, plein écran et interface utilisateur
 let burgerBtn;
 let pauseTopBtn;
+let fullscreenBtn;
 let isMenuOpen = false;
 let topBarContainer;
 let statusPill;
@@ -170,6 +171,16 @@ function creerInterfaceUtilisateur() {
   pauseTopBtn.parent(topBarContainer);
   pauseTopBtn.addClass('switch-pause-topbtn');
   pauseTopBtn.mousePressed(basculerPause);
+
+  fullscreenBtn = createButton('⛶ Plein écran');
+  fullscreenBtn.parent(topBarContainer);
+  fullscreenBtn.addClass('switch-fullscreen-topbtn');
+  fullscreenBtn.mousePressed(basculerPleinEcran);
+
+  document.addEventListener('fullscreenchange', () => {
+    mettreAJourBoutonPleinEcran();
+    setTimeout(windowResized, 60);
+  });
 
   statusPill = createDiv();
   statusPill.parent(topBarContainer);
@@ -473,6 +484,29 @@ function reinitialiserJeu(targetState = 'PLAYING') {
   synchroniserOverlayMenu();
 }
 
+function basculerPleinEcran() {
+  if (!document.fullscreenElement) {
+    let el = document.documentElement;
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+}
+
+function mettreAJourBoutonPleinEcran() {
+  let isFS = Boolean(document.fullscreenElement);
+  if (fullscreenBtn) {
+    fullscreenBtn.html(isFS ? '🗗 Quitter plein écran' : '⛶ Plein écran');
+  }
+  if (gameState === 'START_MENU' || gameState === 'PAUSED') {
+    synchroniserOverlayMenu();
+  }
+}
+
 function basculerPause() {
   if (gameState === 'PLAYING') {
     gameState = 'PAUSED';
@@ -538,6 +572,7 @@ function synchroniserOverlayMenu() {
       <div class="switch-modal-actions">
         <button id="modal-mode-btn" class="switch-action-btn ${onyx && onyx.controlMode === 'MOUSE' ? 'switch-btn-purple' : 'switch-btn-blue'}">${modeLabel}</button>
         <button id="modal-audio-btn" class="switch-action-btn ${gameAudio && gameAudio.bgmPlaying ? 'switch-btn-mint' : 'switch-btn-muted'}">${audioLabel}</button>
+        <button id="modal-fs-btn" class="switch-action-btn switch-btn-blue">${document.fullscreenElement ? '🗗 Fenêtré' : '⛶ Plein écran'}</button>
       </div>
       <div class="switch-modal-hint">
         ${isStart
@@ -592,6 +627,14 @@ function synchroniserOverlayMenu() {
       let isPlaying = gameAudio.toggleBGM();
       mettreAJourBoutonMusique(isPlaying);
       synchroniserOverlayMenu();
+    };
+  }
+
+  let fsBtn = document.getElementById('modal-fs-btn');
+  if (fsBtn) {
+    fsBtn.onclick = (e) => {
+      e.stopPropagation();
+      basculerPleinEcran();
     };
   }
 
