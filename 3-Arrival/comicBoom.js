@@ -1,24 +1,23 @@
 class ComicBoom extends Vehicle {
-  constructor(x, y) {
+  constructor(x, y, type = 'NOM') {
     super(x, y);
 
-    this.vel = createVector(random(-0.8, 0.8), random(-2.2, -1.0));
+    this.type = type;
+    this.vel = createVector(random(-0.4, 0.4), type === 'CRASH' ? -1.0 : -1.8);
     this.acc = createVector(0, 0);
 
-    // Onomatopées "NOM" pour Onix dévorant les Scorbunnies
-    const onomatopees = ['NOM !', 'CRUNCH !', 'CHOMP !', 'MIAM !', 'GLOUPS !', 'YUM !'];
-    this.text = random(onomatopees);
+    const nomWords = ['NOM !', 'MIAM !', 'CHOMP !', '+1 ★'];
+    const crashWords = ['BONK !', 'AÏE !', 'CRAC !'];
+    this.text = (type === 'CRASH') ? random(crashWords) : random(nomWords);
 
-    this.rotation = random(-0.25, 0.25);
-    this.maxLifespan = 55;
+    this.rotation = random(-0.12, 0.12);
+    this.maxLifespan = (type === 'CRASH') ? 42 : 34;
     this.lifespan = this.maxLifespan;
-
-    this.starColor = random(['#ffe600', '#f97316', '#38bdf8', '#a855f7', '#10b981']);
-    this.secondaryColor = random(['#ffffff', '#fffbeb', '#fef08a']);
     this.isDead = false;
   }
 
   update() {
+    this.vel.mult(0.95);
     super.update();
     this.lifespan--;
     if (this.lifespan <= 0) {
@@ -26,122 +25,67 @@ class ComicBoom extends Vehicle {
     }
   }
 
-  getScale() {
-    let progress = 1 - (this.lifespan / this.maxLifespan);
-    if (progress < 0.2) {
-      return map(progress, 0, 0.2, 0.1, 1.4);
-    } else if (progress < 0.35) {
-      return map(progress, 0.2, 0.35, 1.4, 1.0);
-    } else {
-      return map(progress, 0.35, 1.0, 1.0, 1.25);
-    }
-  }
-
   show() {
+    let progress = 1 - (this.lifespan / this.maxLifespan);
+    let alpha = map(progress, 0.45, 1.0, 255, 0, true);
+    let popScale = (progress < 0.2)
+      ? map(progress, 0, 0.2, 0.5, 1.12)
+      : map(progress, 0.2, 1.0, 1.12, 0.96);
+
     push();
     translate(this.pos.x, this.pos.y);
+
+    // 1. Onde lumineuse Pokéball / Stardust fine et transparente (ne bloque jamais la vue)
+    let ringRadius = map(progress, 0, 1, 14, this.type === 'CRASH' ? 58 : 48);
+    let ringAlpha = map(progress, 0, 1, 190, 0);
+    noFill();
+    stroke(this.type === 'CRASH' ? color(255, 77, 109, ringAlpha) : color(253, 224, 71, ringAlpha));
+    strokeWeight(2.5);
+    circle(0, 0, ringRadius * 2);
+
+    // Second anneau interne pastel
+    stroke(this.type === 'CRASH' ? color(255, 255, 255, ringAlpha * 0.7) : color(56, 189, 248, ringAlpha * 0.8));
+    strokeWeight(1.5);
+    circle(0, 0, ringRadius * 1.35);
+
+    // 2. Petites étoiles scintillantes Pokémon autour du texte
+    let starDist = map(progress, 0, 1, 16, 36);
+    for (let i = 0; i < 4; i++) {
+      let a = (HALF_PI * i) + progress * 1.4;
+      this.drawMiniSparkle(cos(a) * starDist, sin(a) * starDist, 5 * (1 - progress * 0.5), alpha);
+    }
+
+    // 3. Texte flottant net, compact et lisible (style Pokémon Switch)
     rotate(this.rotation);
-
-    let sc = this.getScale();
-    scale(sc);
-
-    let alpha = map(this.lifespan, 0, this.maxLifespan * 0.35, 0, 255, true);
-
-    this.dessineRayonsComics(alpha);
-    this.dessineEclatComics(alpha);
-    this.dessineTexteComics(alpha);
-    pop();
-  }
-
-  dessineRayonsComics(alpha) {
-    push();
-    drawingContext.save();
-    drawingContext.globalAlpha = alpha / 255;
-    stroke(255, 235, 59, alpha);
-    strokeWeight(3);
-    let rayCount = 10;
-    for (let i = 0; i < rayCount; i++) {
-      let angle = (TWO_PI / rayCount) * i + frameCount * 0.05;
-      let r1 = 60;
-      let r2 = 85 + sin(frameCount * 0.3 + i) * 10;
-      line(cos(angle) * r1, sin(angle) * r1, cos(angle) * r2, sin(angle) * r2);
-    }
-    drawingContext.restore();
-    pop();
-  }
-
-  dessineEclatComics(alpha) {
-    push();
-    drawingContext.save();
-    drawingContext.globalAlpha = alpha / 255;
-
-    let points = 16;
-    let rExt = 75;
-    let rInt = 38;
-    let angleStep = TWO_PI / points;
-
-    stroke("#000000");
-    strokeWeight(5);
-    fill(this.starColor);
-
-    beginShape();
-    for (let i = 0; i < points; i++) {
-      let a = i * angleStep;
-      let x1 = cos(a) * rExt;
-      let y1 = sin(a) * rExt;
-      vertex(x1, y1);
-
-      let aMid = a + angleStep / 2;
-      let x2 = cos(aMid) * rInt;
-      let y2 = sin(aMid) * rInt;
-      vertex(x2, y2);
-    }
-    endShape(CLOSE);
-
-    stroke("#ffffff");
-    strokeWeight(2);
-    fill(this.secondaryColor);
-    beginShape();
-    for (let i = 0; i < points; i++) {
-      let a = i * angleStep + angleStep * 0.25;
-      let x1 = cos(a) * (rExt * 0.65);
-      let y1 = sin(a) * (rExt * 0.65);
-      vertex(x1, y1);
-
-      let aMid = a + angleStep / 2;
-      let x2 = cos(aMid) * (rInt * 0.65);
-      let y2 = sin(aMid) * (rInt * 0.65);
-      vertex(x2, y2);
-    }
-    endShape(CLOSE);
-
-    drawingContext.restore();
-    pop();
-  }
-
-  dessineTexteComics(alpha) {
-    push();
-    drawingContext.save();
-    drawingContext.globalAlpha = alpha / 255;
+    scale(popScale);
 
     textAlign(CENTER, CENTER);
-    textFont('Impact, "Arial Black", sans-serif');
-    textSize(30);
+    textFont('Fredoka, "Trebuchet MS", system-ui, sans-serif');
+    textSize(19);
 
-    fill(0);
+    stroke(45, 23, 76, alpha);
+    strokeWeight(4.5);
+    fill(this.type === 'CRASH' ? color(255, 77, 109, alpha) : color(253, 224, 71, alpha));
+    text(this.text, 0, 0);
+
+    pop();
+  }
+
+  drawMiniSparkle(x, y, size, alpha) {
+    push();
+    translate(x, y);
     noStroke();
-    text(this.text, 4, 4);
-
-    stroke(0);
-    strokeWeight(6);
-    fill(255);
-    text(this.text, 0, 0);
-
-    strokeWeight(2);
-    fill("#fffb00");
-    text(this.text, 0, 0);
-
-    drawingContext.restore();
+    fill(255, 255, 255, alpha);
+    beginShape();
+    vertex(0, -size);
+    vertex(size * 0.28, -size * 0.28);
+    vertex(size, 0);
+    vertex(size * 0.28, size * 0.28);
+    vertex(0, size);
+    vertex(-size * 0.28, size * 0.28);
+    vertex(-size, 0);
+    vertex(-size * 0.28, -size * 0.28);
+    endShape(CLOSE);
     pop();
   }
 }

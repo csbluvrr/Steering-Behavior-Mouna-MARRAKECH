@@ -84,8 +84,8 @@ let currentLevel = 1;
 let levelButtons = [];
 let labelNiveauActuel;
 
-// État de la partie ('PLAYING', 'GAMEOVER', 'LEVEL_COMPLETE', 'VICTORY_ALL')
-let gameState = 'PLAYING';
+// État de la partie ('START_MENU', 'PLAYING', 'PAUSED', 'GAMEOVER', 'LEVEL_COMPLETE', 'VICTORY_ALL')
+let gameState = 'START_MENU';
 let gameOverTimer = 0;
 let gameOverReason = "";
 let totalScorbunniesDebut = 4;
@@ -96,8 +96,9 @@ let screenShake = 0;
 let scoreMiam = 0;
 let scoreTotal = 0;
 
-// Menu burger et interface utilisateur
+// Menu burger, pause et interface utilisateur
 let burgerBtn;
+let pauseTopBtn;
 let isMenuOpen = false;
 let topBarContainer;
 let statusPill;
@@ -152,7 +153,7 @@ function setup() {
 
   gameAudio = new GameAudio();
   creerInterfaceUtilisateur();
-  chargerNiveau(1);
+  chargerNiveau(1, 'START_MENU');
 }
 
 function creerInterfaceUtilisateur() {
@@ -164,6 +165,11 @@ function creerInterfaceUtilisateur() {
   burgerBtn.parent(topBarContainer);
   burgerBtn.addClass('switch-burger-btn');
   burgerBtn.mousePressed(basculerMenuBurger);
+
+  pauseTopBtn = createButton('⏸ Pause');
+  pauseTopBtn.parent(topBarContainer);
+  pauseTopBtn.addClass('switch-pause-topbtn');
+  pauseTopBtn.mousePressed(basculerPause);
 
   statusPill = createDiv();
   statusPill.parent(topBarContainer);
@@ -420,7 +426,7 @@ function mettreAJourBoutonsNiveaux() {
   }
 }
 
-function chargerNiveau(num) {
+function chargerNiveau(num, targetState = 'PLAYING') {
   currentLevel = constrain(num, 1, LEVELS.length);
   let cfg = getLevelConfig(currentLevel);
 
@@ -432,12 +438,12 @@ function chargerNiveau(num) {
   if (champVisionSlider) champVisionSlider.value(cfg.champVision);
 
   mettreAJourBoutonsNiveaux();
-  reinitialiserJeu();
+  reinitialiserJeu(targetState);
 }
 
-function reinitialiserJeu() {
+function reinitialiserJeu(targetState = 'PLAYING') {
   let cfg = getLevelConfig(currentLevel);
-  gameState = 'PLAYING';
+  gameState = targetState;
   gameOverTimer = 0;
   gameOverReason = "";
   particles = [];
@@ -464,6 +470,139 @@ function reinitialiserJeu() {
     scorbunnies.push(s);
   }
   mettreAJourBoutonsNiveaux();
+  synchroniserOverlayMenu();
+}
+
+function basculerPause() {
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSED';
+    synchroniserOverlayMenu();
+  } else if (gameState === 'PAUSED') {
+    gameState = 'PLAYING';
+    synchroniserOverlayMenu();
+  } else if (gameState === 'START_MENU') {
+    demarrerPartie();
+  }
+}
+
+function demarrerPartie() {
+  if (gameAudio && !gameAudio.bgmPlaying) {
+    gameAudio.startBGM();
+    mettreAJourBoutonMusique(true);
+  }
+  gameState = 'PLAYING';
+  synchroniserOverlayMenu();
+}
+
+function synchroniserOverlayMenu() {
+  let overlay = document.getElementById('switch-menu-overlay');
+  if (!overlay) return;
+
+  if (pauseTopBtn) {
+    pauseTopBtn.html(gameState === 'PAUSED' ? '▶ Reprendre' : '⏸ Pause');
+  }
+
+  if (gameState !== 'START_MENU' && gameState !== 'PAUSED') {
+    overlay.classList.add('is-hidden');
+    overlay.innerHTML = '';
+    return;
+  }
+
+  let isStart = (gameState === 'START_MENU');
+  let cfg = getLevelConfig(currentLevel);
+  let modeLabel = (onyx && onyx.controlMode === 'MOUSE') ? '🖱️ Souris (Arrival)' : '🕹️ Flèches Clavier';
+  let audioLabel = (gameAudio && gameAudio.bgmPlaying) ? '🔊 Musique : ON' : '🔇 Musique : OFF';
+
+  let levelBtnsHtml = LEVELS.map(lvl => {
+    let activeCls = (lvl.num === currentLevel) ? ' is-active' : '';
+    return `<button class="switch-level-btn${activeCls}" data-lvl="${lvl.num}">Niv. ${lvl.num}</button>`;
+  }).join('');
+
+  overlay.innerHTML = `
+    <div class="switch-modal-card">
+      <div class="switch-modal-badge ${isStart ? '' : 'is-pause'}">
+        ${isStart ? '🐍 ONIX SNAKE' : '⏸ PAUSE'}
+      </div>
+      <div class="switch-modal-subtitle">
+        ${isStart
+          ? `★ Pokémon Switch Edition · Niveau ${cfg.num} — ${cfg.nom} ★`
+          : `Niveau ${cfg.num} — ${cfg.nom} · 🐰 ${scorbunnies.length} restants · 🐍 ${onyx ? onyx.anneaux.length : 1} anneau(x)`}
+      </div>
+      <div class="switch-modal-levels">${levelBtnsHtml}</div>
+      <div class="switch-modal-actions">
+        <button id="modal-play-btn" class="switch-primary-btn">
+          ${isStart ? '▶ JOUER' : '▶ REPRENDRE'}
+        </button>
+        ${isStart ? '' : '<button id="modal-restart-btn" class="switch-action-btn switch-btn-coral">↺ Recommencer</button>'}
+      </div>
+      <div class="switch-modal-actions">
+        <button id="modal-mode-btn" class="switch-action-btn ${onyx && onyx.controlMode === 'MOUSE' ? 'switch-btn-purple' : 'switch-btn-blue'}">${modeLabel}</button>
+        <button id="modal-audio-btn" class="switch-action-btn ${gameAudio && gameAudio.bgmPlaying ? 'switch-btn-mint' : 'switch-btn-muted'}">${audioLabel}</button>
+      </div>
+      <div class="switch-modal-hint">
+        ${isStart
+          ? 'Flèches / ZQSD ou Souris · ÉCHAP pour Pause · D pour Debug'
+          : 'Appuyez sur ÉCHAP ou ESPACE pour reprendre'}
+      </div>
+    </div>
+  `;
+
+  overlay.classList.remove('is-hidden');
+
+  // Brancher les boutons du menu
+  let playBtn = document.getElementById('modal-play-btn');
+  if (playBtn) {
+    playBtn.onclick = (e) => {
+      e.stopPropagation();
+      demarrerPartie();
+    };
+  }
+
+  let restartBtn = document.getElementById('modal-restart-btn');
+  if (restartBtn) {
+    restartBtn.onclick = (e) => {
+      e.stopPropagation();
+      reinitialiserJeu('PLAYING');
+    };
+  }
+
+  let modeBtn = document.getElementById('modal-mode-btn');
+  if (modeBtn) {
+    modeBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (onyx.controlMode === 'KEYBOARD') {
+        onyx.controlMode = 'MOUSE';
+        controlModeBtn.html('🖱️ Contrôle : SOURIS (Arrival)');
+        controlModeBtn.removeClass('switch-btn-blue');
+        controlModeBtn.addClass('switch-btn-purple');
+      } else {
+        onyx.controlMode = 'KEYBOARD';
+        controlModeBtn.html('🕹️ Contrôle : FLÈCHES CLAVIER');
+        controlModeBtn.removeClass('switch-btn-purple');
+        controlModeBtn.addClass('switch-btn-blue');
+      }
+      synchroniserOverlayMenu();
+    };
+  }
+
+  let audioBtn = document.getElementById('modal-audio-btn');
+  if (audioBtn) {
+    audioBtn.onclick = (e) => {
+      e.stopPropagation();
+      let isPlaying = gameAudio.toggleBGM();
+      mettreAJourBoutonMusique(isPlaying);
+      synchroniserOverlayMenu();
+    };
+  }
+
+  overlay.querySelectorAll('[data-lvl]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      let lvlNum = parseInt(btn.getAttribute('data-lvl'), 10);
+      scoreTotal = 0;
+      chargerNiveau(lvlNum, isStart ? 'START_MENU' : 'PLAYING');
+    };
+  });
 }
 
 function ajusterScorbunnies() {
@@ -656,10 +795,11 @@ function draw() {
     obs.show();
   }
 
-  // 5. Rendu des traînées de réacteurs
+  // 5. Rendu des traînées de réacteurs (gelées en pause)
+  let animateFX = (gameState !== 'PAUSED' && gameState !== 'START_MENU');
   for (let i = trailParticles.length - 1; i >= 0; i--) {
     let tp = trailParticles[i];
-    tp.update();
+    if (animateFX) tp.update();
     tp.show();
     if (tp.isDead) trailParticles.splice(i, 1);
   }
@@ -675,17 +815,17 @@ function draw() {
   // 7. Rendu d'Onix (tête et corps)
   onyx.show();
 
-  // 8. Rendu des particules et onomatopées
+  // 8. Rendu des particules et effets Pokémon (gelés en pause)
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
-    p.update();
+    if (animateFX) p.update();
     p.show();
     if (p.isDead) particles.splice(i, 1);
   }
 
   for (let i = comicBooms.length - 1; i >= 0; i--) {
     let boom = comicBooms[i];
-    boom.update();
+    if (animateFX) boom.update();
     boom.show();
     if (boom.isDead) comicBooms.splice(i, 1);
   }
@@ -702,30 +842,30 @@ function draw() {
   }
 }
 
-// Déclenche un crash mortel (murs ou queue)
+// Déclenche un crash mortel (murs, astéroïde ou queue)
 function declencherCrashMortel(raison) {
-  screenShake = 26;
+  screenShake = 12;
   gameState = 'GAMEOVER';
   gameOverReason = raison;
   gameOverTimer = 240;
 
-  for (let i = 0; i < 45; i++) {
+  for (let i = 0; i < 18; i++) {
     particles.push(new Particle(onyx.head.pos.x, onyx.head.pos.y));
   }
 
-  comicBooms.push(new ComicBoom(onyx.head.pos.x, onyx.head.pos.y));
+  comicBooms.push(new ComicBoom(onyx.head.pos.x, onyx.head.pos.y, 'CRASH'));
   gameAudio.playCrashSound();
 }
 
-// Déclenche l'effet "NOM" : croquement sonore, onomatopée comics, secousse et particules
+// Déclenche l'effet Pokémon léger "NOM" : étincelles pastel, onde discrète et croquement
 function declencherNomMiam(x, y) {
-  screenShake = 18;
+  screenShake = 4;
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 12; i++) {
     particles.push(new Particle(x, y));
   }
 
-  comicBooms.push(new ComicBoom(x, y));
+  comicBooms.push(new ComicBoom(x, y, 'NOM'));
   gameAudio.playNomSound();
 }
 
@@ -863,15 +1003,25 @@ function gererActionFinDeManche() {
 }
 
 function keyPressed() {
-  // Contrôle directionnel classique au clavier (Flèches & WASD / ZQSD)
-  if (keyCode === UP_ARROW || key === 'z' || key === 'Z' || key === 'w' || key === 'W') {
-    onyx.setDirection(0, -1);
-  } else if (keyCode === DOWN_ARROW || key === 's' || key === 'S') {
-    onyx.setDirection(0, 1);
-  } else if (keyCode === LEFT_ARROW || key === 'q' || key === 'Q' || key === 'a' || key === 'A') {
-    onyx.setDirection(-1, 0);
-  } else if (keyCode === RIGHT_ARROW) {
-    onyx.setDirection(1, 0);
+  // Touche ÉCHAP : mettre en pause ou reprendre la partie
+  if (keyCode === ESCAPE) {
+    if (gameState === 'PLAYING' || gameState === 'PAUSED') {
+      basculerPause();
+    }
+    return;
+  }
+
+  // Contrôle directionnel classique au clavier (uniquement en cours de partie)
+  if (gameState === 'PLAYING') {
+    if (keyCode === UP_ARROW || key === 'z' || key === 'Z' || key === 'w' || key === 'W') {
+      onyx.setDirection(0, -1);
+    } else if (keyCode === DOWN_ARROW || key === 's' || key === 'S') {
+      onyx.setDirection(0, 1);
+    } else if (keyCode === LEFT_ARROW || key === 'q' || key === 'Q' || key === 'a' || key === 'A') {
+      onyx.setDirection(-1, 0);
+    } else if (keyCode === RIGHT_ARROW) {
+      onyx.setDirection(1, 0);
+    }
   }
 
   // Touche D pour basculer le débug
@@ -884,18 +1034,27 @@ function keyPressed() {
     gameAudio.init();
   }
 
-  if (key === ' ' && gameState !== 'PLAYING') {
-    gererActionFinDeManche();
+  if (key === ' ' || keyCode === ENTER) {
+    if (gameState === 'START_MENU' || gameState === 'PAUSED') {
+      demarrerPartie();
+    } else if (gameState === 'GAMEOVER' || gameState === 'LEVEL_COMPLETE' || gameState === 'VICTORY_ALL') {
+      gererActionFinDeManche();
+    }
   }
 }
 
 function mousePressed() {
+  if (gameState === 'START_MENU' || gameState === 'PAUSED') {
+    return;
+  }
+
   if (!gameAudio.bgmPlaying) {
     gameAudio.startBGM();
     mettreAJourBoutonMusique(true);
   }
 
-  if (gameState !== 'PLAYING' && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+  if ((gameState === 'GAMEOVER' || gameState === 'LEVEL_COMPLETE' || gameState === 'VICTORY_ALL')
+      && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
     gererActionFinDeManche();
   }
 }

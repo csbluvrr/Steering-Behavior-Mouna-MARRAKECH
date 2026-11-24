@@ -318,6 +318,144 @@ html, body {
   box-shadow: 0 3px 0 var(--ink);
 }
 
+/* =========================================================
+   MENU D'ACCUEIL & MENU PAUSE (ÉCHAP) DANS L'ÉCRAN SWITCH
+   ========================================================= */
+
+.switch-menu-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(45, 23, 76, 0.56);
+  backdrop-filter: blur(5px);
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.switch-menu-overlay.is-hidden {
+  display: none;
+}
+
+.switch-modal-card {
+  width: min(92%, 440px);
+  background: rgba(252, 246, 255, 0.97);
+  border: 3.5px solid var(--ink);
+  border-radius: 26px;
+  box-shadow: 0 8px 0 var(--ink), 0 18px 40px rgba(45, 23, 76, 0.45);
+  padding: 18px 22px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  color: var(--ink);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.switch-modal-badge {
+  display: inline-block;
+  padding: 6px 22px;
+  border-radius: 999px;
+  border: 3px solid var(--ink);
+  box-shadow: 0 4px 0 var(--ink);
+  font-size: clamp(18px, 2.4vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #ffffff;
+  background: var(--joycon-red);
+  text-shadow: 0 2px 0 var(--ink);
+}
+
+.switch-modal-badge.is-pause {
+  background: var(--joycon-blue);
+  color: var(--ink);
+  text-shadow: none;
+}
+
+.switch-modal-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b21a8;
+  margin-top: -2px;
+}
+
+.switch-modal-levels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.switch-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+}
+
+.switch-primary-btn {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 9px 28px;
+  border-radius: 999px;
+  border: 3px solid var(--ink);
+  background: #4ade80;
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+}
+
+.switch-primary-btn:hover {
+  background: #86efac;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+.switch-primary-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
+.switch-modal-hint {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f3e8ff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(45, 23, 76, 0.2);
+}
+
+.switch-pause-topbtn {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--pika-yellow);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.switch-pause-topbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--ink);
+}
+
+.switch-pause-topbtn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+
 /* Sliders kawaii façon manette Switch */
 .burger-menu-panel input[type="range"] {
   -webkit-appearance: none;

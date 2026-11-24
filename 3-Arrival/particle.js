@@ -2,21 +2,24 @@ class Particle extends Vehicle {
   constructor(x, y, col = null) {
     super(x, y);
 
-    this.vel = p5.Vector.random2D().mult(random(3, 12));
+    this.vel = p5.Vector.random2D().mult(random(1.8, 5.5));
     this.acc = createVector(0, 0);
 
-    this.initialR = random(6, 16);
+    this.initialR = random(3, 6.5);
     this.r = this.initialR;
 
-    this.maxLifespan = random(30, 50);
+    this.maxLifespan = random(18, 30);
     this.lifespan = this.maxLifespan;
+    this.isStar = random() < 0.65;
+    this.rot = random(TWO_PI);
+    this.rotSpeed = random(-0.15, 0.15);
 
-    // Palette rocheuse / étincelles Pokémon (pierres Onix, étincelles jaunes Scorbunny)
+    // Palette étincelles Pokémon pastel (Or Pikachu, Bleu Joy-Con, Corail, Blanc brillant)
     const palette = [
-      color(148, 163, 184), // Gris roche clair
-      color(100, 116, 139), // Gris roche sombre
-      color(251, 191, 36),  // Jaune or
-      color(249, 115, 22),  // Orange feu
+      color(253, 224, 71),  // Jaune Pikachu
+      color(56, 189, 248),  // Bleu Joy-Con
+      color(255, 107, 139), // Rose Corail
+      color(192, 132, 252), // Lavande
       color(255, 255, 255)  // Éclat blanc
     ];
     this.color = col || random(palette);
@@ -24,7 +27,8 @@ class Particle extends Vehicle {
   }
 
   update() {
-    this.vel.mult(0.91);
+    this.vel.mult(0.90);
+    this.rot += this.rotSpeed;
     super.update();
 
     this.lifespan--;
@@ -37,10 +41,29 @@ class Particle extends Vehicle {
 
   show() {
     push();
-    let alpha = map(this.lifespan, 0, this.maxLifespan, 0, 255);
+    translate(this.pos.x, this.pos.y);
+    rotate(this.rot);
+    let alpha = map(this.lifespan, 0, this.maxLifespan, 0, 210);
     fill(red(this.color), green(this.color), blue(this.color), alpha);
     noStroke();
-    circle(this.pos.x, this.pos.y, this.r * 2);
+
+    if (this.isStar) {
+      // Étincelle Pokémon à 4 branches (légère et transparente)
+      let s = this.r * 1.45;
+      let inner = s * 0.28;
+      beginShape();
+      vertex(0, -s);
+      vertex(inner, -inner);
+      vertex(s, 0);
+      vertex(inner, inner);
+      vertex(0, s);
+      vertex(-inner, inner);
+      vertex(-s, 0);
+      vertex(-inner, -inner);
+      endShape(CLOSE);
+    } else {
+      circle(0, 0, this.r * 1.6);
+    }
     pop();
   }
 }
