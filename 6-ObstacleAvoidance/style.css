@@ -1,0 +1,135 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  font-family: system-ui, sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+.controls {
+  position: fixed;
+  z-index: 20;
+  top: 12px;
+  right: 12px;
+  width: min(440px, calc(100vw - 24px));
+  color: #fff;
+  background: rgba(15, 18, 30, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  box-sizing: border-box;
+  backdrop-filter: blur(5px);
+}
+
+.controls__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.controls h1 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.controls__toggle,
+.controls__mode-btn {
+  padding: 6px 10px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.controls__mode-btn {
+  width: 100%;
+  text-align: left;
+  font-weight: 600;
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.65);
+}
+
+.controls__mode-btn--alt {
+  background: rgba(249, 115, 22, 0.26);
+  border-color: rgba(251, 146, 60, 0.75);
+}
+
+.controls__toggle:hover,
+.controls__mode-btn:hover {
+  filter: brightness(1.15);
+}
+
+.controls__content {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.controls--collapsed .controls__content {
+  display: none;
+}
+
+.controls__row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(110px, 2fr) 52px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.controls__row--select {
+  grid-template-columns: minmax(150px, 1fr) minmax(140px, 2fr);
+}
+
+.controls__row--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.controls__row input[type="range"] {
+  width: 100%;
+}
+
+.controls__select {
+  width: 100%;
+  padding: 5px 8px;
+  color: #fff;
+  background: rgba(25, 30, 48, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.controls__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.controls__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.controls__hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: rgba(226, 232, 240, 0.75);
+}

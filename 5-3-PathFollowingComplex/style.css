@@ -1,0 +1,120 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #f0f0f0;
+  font-family: system-ui, sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+.controls {
+  position: fixed;
+  z-index: 20;
+  top: 12px;
+  right: 12px;
+  width: min(420px, calc(100vw - 24px));
+  color: #fff;
+  background: rgba(20, 25, 36, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  box-sizing: border-box;
+  backdrop-filter: blur(6px);
+}
+
+.controls__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.controls h1 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.controls__toggle,
+.controls__btn {
+  padding: 6px 10px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 5px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.controls__btn {
+  background: rgba(34, 197, 94, 0.28);
+  border-color: rgba(74, 222, 128, 0.65);
+  font-weight: 600;
+}
+
+.controls__toggle:hover,
+.controls__btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.controls__btn:hover {
+  background: rgba(34, 197, 94, 0.45);
+}
+
+.controls__content {
+  display: grid;
+  gap: 9px;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.controls--collapsed .controls__content {
+  display: none;
+}
+
+.controls__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.controls__badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #86efac;
+}
+
+.controls__row {
+  display: grid;
+  grid-template-columns: minmax(145px, 1fr) minmax(110px, 1.8fr) 54px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.controls__row input[type="range"] {
+  width: 100%;
+}
+
+.controls__row output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.controls__hint {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: rgba(226, 232, 240, 0.78);
+}

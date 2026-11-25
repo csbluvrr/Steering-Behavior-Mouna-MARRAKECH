@@ -5,7 +5,7 @@ Ce projet rassemble une suite d'applications, d'exercices et de simulations inte
 L'article original est consultable dans le dossier :
 `article craig reynolds/Steering Behaviors For Autonomous Characters.pdf`
 
-<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-24 16:58:02 UTC* <!-- END:LAST_UPDATED -->
+<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-25 10:19:42 UTC* <!-- END:LAST_UPDATED -->
 
 ---
 
@@ -45,6 +45,15 @@ Ce tableau est **automatiquement synchronisé** à chaque modification ou ajout 
 | **3-Arrival** | Exercice / Démo | `ComicBoom, GameAudio, Obstacle, Particle, Snake, SnakeHead, SnakeSegment, Target, TrailParticle, Vehicle` | `evade, avoidobstacles, arrive, follow, flee, seek` | [3-Arrival](./3-Arrival/index.html) |
 | **3-Arrival_correction** | Correction / Avancé | `Snake, SnakeWander, Vehicle, Target` | `arrive, wander, seek, flee, pursue, evade` | [3-Arrival_correction](./3-Arrival_correction/index.html) |
 | **4-Wander** | Exercice / Démo | `Vehicle` | `wander, seek, flee, pursue, evade, arrive` | [4-Wander](./4-Wander/index.html) |
+| **5-1-ScalarProjection** | Exercice / Démo | `Vehicle` | `-` | [5-1-ScalarProjection](./5-1-ScalarProjection/index.html) |
+| **5-2-PathFollowing** | Exercice / Démo | `Path, Vehicle` | `follow, seek` | [5-2-PathFollowing](./5-2-PathFollowing/index.html) |
+| **5-3-PathFollowingComplex** | Exercice / Démo | `Path, Snake, SnakePathFollowing, SnakeSegment, class` | `arrive, follow, separate, seek, wander` | [5-3-PathFollowingComplex](./5-3-PathFollowingComplex/index.html) |
+| **6-ObstacleAvoidance** | Exercice / Démo | `Obstacle, Vehicle` | `seek, flee, pursue, evade, arrive, separate` | [6-ObstacleAvoidance](./6-ObstacleAvoidance/index.html) |
+| **7-Boids** | Exercice / Démo | `Boid, Obstacle` | `seek, flee, wander, align, flock` | [7-Boids](./7-Boids/index.html) |
+| **8-EvolutionarySteeringBehavior** | Exercice / Démo | `Vehicle` | `seek` | [8-EvolutionarySteeringBehavior](./8-EvolutionarySteeringBehavior/index.html) |
+| **9-VoitureSuitCircuit genetic algo** | Exercice / Démo | `Boundary, NeuralNetwork, Ray, Vehicle` | `-` | [9-VoitureSuitCircuit genetic algo](./9-VoitureSuitCircuit genetic algo/index.html) |
+| **9b - Voiture suit circuit version 2** | Exercice / Démo | `Vehicle` | `-` | [9b - Voiture suit circuit version 2](./9b - Voiture suit circuit version 2/index.html) |
+| **10-missiles genetic algo** | Exercice / Démo | `DNA, Obstacle, Population, Rocket` | `-` | [10-missiles genetic algo](./10-missiles genetic algo/index.html) |
 
 <!-- END:PROJECTS_TABLE -->
 

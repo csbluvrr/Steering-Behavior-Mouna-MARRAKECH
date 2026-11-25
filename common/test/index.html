@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test commun — common/vehicle.js (Exemples 1 à 7)</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #0b1020;
+        color: #f8fafc;
+        font-family: system-ui, -apple-system, sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 14px;
+        background: #111827;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      .badge {
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        background: rgba(56, 189, 248, 0.18);
+        border: 1px solid rgba(56, 189, 248, 0.5);
+        color: #7dd3fc;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      button {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        font-size: 0.84rem;
+        cursor: pointer;
+      }
+      button:hover {
+        background: rgba(255, 255, 255, 0.16);
+      }
+      button.active {
+        background: #0284c7;
+        border-color: #38bdf8;
+        font-weight: 600;
+      }
+      main {
+        flex: 1;
+        min-height: 0;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="title">
+        <span>Banc de test — Steering Behaviors</span>
+        <span class="badge">common/vehicle.js</span>
+      </div>
+      <nav id="examples-nav" aria-label="Exemples 1 à 7"></nav>
+    </header>
+    <main>
+      <iframe id="demo-frame" title="Exemple sélectionné"></iframe>
+    </main>
+
+    <script>
+      const EXAMPLES = [
+        { id: "ex1-seek.html", label: "1 · Seek" },
+        { id: "ex2-pursue.html", label: "2 · Pursue / Evade" },
+        { id: "ex3-arrival.html", label: "3 · Arrival" },
+        { id: "ex4-wander.html", label: "4 · Wander" },
+        { id: "ex5-2-path.html", label: "5-2 · Path Following" },
+        { id: "ex5-3-complex-path.html", label: "5-3 · Complex Path" },
+        { id: "ex6-avoidance.html", label: "6 · Obstacle Avoidance" },
+        { id: "ex7-boids.html", label: "7 · Boids" },
+      ];
+
+      const nav = document.getElementById("examples-nav");
+      const frame = document.getElementById("demo-frame");
+
+      function selectExample(file) {
+        frame.src = file;
+        const buttons = nav.querySelectorAll("button");
+        buttons.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.file === file);
+        });
+      }
+
+      EXAMPLES.forEach((ex) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = ex.label;
+        btn.dataset.file = ex.id;
+        btn.addEventListener("click", () => selectExample(ex.id));
+        nav.appendChild(btn);
+      });
+
+      selectExample(EXAMPLES[0].id);
+    </script>
+  </body>
+</html>
