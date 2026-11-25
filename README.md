@@ -5,7 +5,7 @@ Ce projet rassemble une suite d'applications, d'exercices et de simulations inte
 L'article original est consultable dans le dossier :
 `article craig reynolds/Steering Behaviors For Autonomous Characters.pdf`
 
-<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-25 10:19:42 UTC* <!-- END:LAST_UPDATED -->
+<!-- START:LAST_UPDATED --> *Dernière actualisation automatique : 2026-11-25 23:34:27 UTC* <!-- END:LAST_UPDATED -->
 
 ---
 
@@ -54,6 +54,7 @@ Ce tableau est **automatiquement synchronisé** à chaque modification ou ajout 
 | **9-VoitureSuitCircuit genetic algo** | Exercice / Démo | `Boundary, NeuralNetwork, Ray, Vehicle` | `-` | [9-VoitureSuitCircuit genetic algo](./9-VoitureSuitCircuit genetic algo/index.html) |
 | **9b - Voiture suit circuit version 2** | Exercice / Démo | `Vehicle` | `-` | [9b - Voiture suit circuit version 2](./9b - Voiture suit circuit version 2/index.html) |
 | **10-missiles genetic algo** | Exercice / Démo | `DNA, Obstacle, Population, Rocket` | `-` | [10-missiles genetic algo](./10-missiles genetic algo/index.html) |
+| **projet** | Exercice / Démo | `Vehicle` | `-` | [projet](./projet/index.html) |
 
 <!-- END:PROJECTS_TABLE -->
 
